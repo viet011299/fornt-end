@@ -39,7 +39,7 @@ function Header() {
             marginTop: "10px",
             marginRight: "40px",
           }}
-          to="/manager"
+          to="/managers"
         >
           <li>Manager</li>
         </Link>

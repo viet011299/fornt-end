@@ -1,5 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import MeterCard from './MeterCard'
 import { TextField } from '@material-ui/core'
@@ -36,9 +36,9 @@ function Meter(props) {
   )
 }
 
-Meter.propTypes = {
+// Meter.propTypes = {
 
-}
+// }
 const StyledListCard = styled.div`
   display:flex;
   flex-wrap:wrap;

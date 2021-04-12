@@ -1,15 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+// import PropTypes from 'prop-types';
 import ReactApexChart from "react-apexcharts";
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import {ArrowBack} from '@material-ui/icons'
-MeterInfo.propTypes = {
+import { ArrowBack } from '@material-ui/icons'
+import io from "socket.io-client"
+// MeterInfo.propTypes = {
 
-};
-
+// };
+const URL = "http://localhost:6969";
+const socket = io(URL)
 function MeterInfo(props) {
   const meterId = props.match.params.id;
+  const [meter,setMeter]= useState([])
   const series = [
     {
       name: "Cases",
@@ -61,21 +64,27 @@ function MeterInfo(props) {
       },
     },
   };
-
+  useEffect(() => {
+    socket.on('updateData',(data)=>{
+      setMeter([...meter,data])
+      console.log(data);
+    }) 
+  })
   return (
     <div
       style={{
         backgroundColor: "white",
-        marginTop:'20px'
+        marginTop: '20px'
       }}
     >
       <StyledLink
         to="/meters"
       >
-       <ArrowBack style={{marginRight:'10px'}} /> Back
+        <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
       <h1>Meter {meterId}</h1>
       <br />
+    
       <ReactApexChart
         options={options}
         series={series}

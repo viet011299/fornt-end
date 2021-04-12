@@ -43,7 +43,7 @@ function MeterCard(props) {
       </CardContent>
       <CardActions>
         <StyledLink
-          to="/meter/1"
+          to="/meters/1"
         >
           Show
         </StyledLink>

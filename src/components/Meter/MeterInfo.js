@@ -9,7 +9,7 @@ import io from "socket.io-client"
 
 // };
 const URL = "http://localhost:6969";
-const socket = io(URL)
+// const socket = io(URL)
 function MeterInfo(props) {
   const meterId = props.match.params.id;
   const [meter,setMeter]= useState([])
@@ -64,17 +64,16 @@ function MeterInfo(props) {
       },
     },
   };
-  useEffect(() => {
-    socket.on('updateData',(data)=>{
-      setMeter([...meter,data])
-      console.log(data);
-    }) 
-  })
+  // useEffect(() => {
+  //   socket.on('updateData',(data)=>{
+  //     setMeter([...meter,data])
+  //     console.log(data);
+  //   }) 
+  // })
   return (
     <div
       style={{
         backgroundColor: "white",
-        marginTop: '20px'
       }}
     >
       <StyledLink

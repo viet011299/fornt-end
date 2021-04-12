@@ -1,4 +1,4 @@
-import React, {  } from "react";
+import React, { } from "react";
 import Home from "./components/Home";
 import Header from "./components/Header";
 import Footer from "./components/Fotter";
@@ -19,7 +19,6 @@ function App() {
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/meters" component={Meter} />
-            <Route path="/meter/:id" component={MeterInfo}/>
             <Route path="/managers" component={Manager} />
           </Switch>
         </StyledContainer >
@@ -29,6 +28,7 @@ function App() {
   );
 }
 const StyledContainer = styled(Container)`
-    min-height:595px;
+  margin-top:80px;
+  margin-bottom:120px;
 `
 export default App;

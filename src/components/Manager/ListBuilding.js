@@ -87,7 +87,7 @@ function ListBuilding(props) {
 
                 <TableCell align="center">
                   <Button variant="contained" color="inherit" >
-                  <StyledLinkView to={`${url}/room/${row._id}`}>View</StyledLinkView>
+                    <StyledLinkView to={`${url}/${row._id}/room`}>View</StyledLinkView>
                   </Button>
                   <Button variant="contained" color="primary" style={{ marginLeft: "10px" }}>
                     <StyledLink to={`${url}/${row._id}`}>Edit</StyledLink>

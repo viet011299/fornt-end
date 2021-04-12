@@ -1,48 +1,26 @@
 import React from 'react'
+import { Route, Switch, useRouteMatch } from 'react-router'
 // import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import MeterCard from './MeterCard'
-import { TextField } from '@material-ui/core'
+
+import ListMeter from './ListMeter'
+import MeterInfo from './MeterInfo'
 
 function Meter(props) {
+  let { path } = useRouteMatch()
   return (
-    <div>
-      <h1>
-        List Meter
-      </h1>
-      <TextField
-          id="outlined-full-width"
-          label="Search"
-          style={{ margin: 8 }}
-          placeholder="Placeholder"
-          helperText="Full width!"
-          fullWidth
-          margin="normal"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-        />
-      <StyledListCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-        <MeterCard></MeterCard>
-      </StyledListCard>
-    </div>
+    <Switch>
+      <Route path={path} >
+        <Route exact path={path} component={ListMeter} />
+        <Route path={`${path}/:id`} component={MeterInfo} />
+      </Route>
+    </Switch>
   )
 }
 
 // Meter.propTypes = {
 
 // }
-const StyledListCard = styled.div`
-  display:flex;
-  flex-wrap:wrap;
-  justify-content: space-evenly;
-`
+
 export default Meter
 

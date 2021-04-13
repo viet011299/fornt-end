@@ -11,32 +11,22 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { Button, TableHead } from '@material-ui/core';
 import styled from 'styled-components'
-import TablePaginationActions from './TablePaginationActions'
+import TablePaginationActions from '../TablePaginationActions'
 import { Link, useRouteMatch, } from 'react-router-dom';
-import buildingApi from '../../api/buildingApi';
+import { ArrowBack } from '@material-ui/icons';
 
 const useStyles2 = makeStyles({
   table: {
     minWidth: 500,
   },
 });
-function ListBuilding(props) {
+
+function ListRoomOnFloor(props) {
   const classes = useStyles2();
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  let { path, url } = useRouteMatch();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
- 
-  const fetchData = async () => {
-    try {
-      const response = await buildingApi.getAll()
-      setData(response.data);
-      console.log('Fetch building successfully: ', response);
-    } catch (error) {
-      console.log('Failed to fetch building list: ', error);
-    }
-  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -45,35 +35,18 @@ function ListBuilding(props) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  useEffect(() => {
-
-    fetchData();
-  }, []);
-  const handleDelete = async (id) => {
-    try {
-      const response = await buildingApi.delete(id)
-      fetchData();
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
   return (
     <>
       <StyledHeader>
-        <StyledTextHeader>Manager Building</StyledTextHeader>
-        <StyledButtonCreate variant="contained" color="primary"> <StyledLink to={`${url}/create`}>Create</StyledLink> </StyledButtonCreate>
+        <StyledTextHeader>Floor </StyledTextHeader>
+        <StyledButtonCreate variant="contained" color="primary"> Create</StyledButtonCreate>
       </StyledHeader>
-
       <StyledTable component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table">
           <TableHead>
             <TableRow>
               <TableTextHead align="center" >#</TableTextHead>
-              <TableTextHead align="center" >Id Building</TableTextHead>
-              <TableTextHead align="center" >Number Floor</TableTextHead>
-              <TableTextHead align="center" >Building Name</TableTextHead>
+              <TableTextHead align="center" >Id Room</TableTextHead>
               <TableTextHead align="center" >Action</TableTextHead>
             </TableRow>
           </TableHead>
@@ -89,21 +62,12 @@ function ListBuilding(props) {
                 <TableCell align="center">
                   {row.buildingID}
                 </TableCell>
-                <TableCell align="center">
-                  {row.numberFloor}
-                </TableCell>
-                <TableCell align="center">
-                  {!row.buildingName|| row.buildingName!=="" ? row.buildingName : "-"}
-                </TableCell>
 
                 <TableCell align="center">
-                  <Button variant="contained" color="inherit" >
-                    <StyledLinkView to={`${url}/${row._id}/room`}>View</StyledLinkView>
-                  </Button>
                   <Button variant="contained" color="primary" style={{ marginLeft: "10px" }}>
-                    <StyledLink to={`${url}/${row._id}`}>Edit</StyledLink>
+                    Edit
                   </Button>
-                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }} onClick={() => handleDelete(row._id)}>
+                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }}>
                     Delete
                   </Button>
                 </TableCell>
@@ -122,7 +86,7 @@ function ListBuilding(props) {
               <TablePagination
                 align="right"
                 rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
-                colSpan={5}
+                colSpan={3}
                 count={data.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -140,10 +104,6 @@ function ListBuilding(props) {
       </StyledTable>
     </>
   )
-}
-
-ListBuilding.propTypes = {
-
 }
 const StyledTable = styled(TableContainer)`
   margin-top:20px;
@@ -167,9 +127,10 @@ const StyledTextHeader = styled.h1`
 const StyledLink = styled(Link)`
   text-decoration: none;
 `
-const StyledLinkView = styled(Link)`
-  color:black;
-  text-decoration: none;
-`
-export default ListBuilding
+
+ListRoomOnFloor.propTypes = {
+
+}
+
+export default ListRoomOnFloor
 

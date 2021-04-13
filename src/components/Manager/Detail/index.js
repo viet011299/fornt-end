@@ -144,6 +144,7 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   text-align: start;
   display: flex;
+  align-items: center;
 `
 const StyledTextField = styled(TextField)`
   width: 50%;

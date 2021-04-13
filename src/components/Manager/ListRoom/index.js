@@ -7,6 +7,10 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import { FormControl, FormHelperText, InputLabel, NativeSelect, styled } from '@material-ui/core';
+import ListRoomOnFloor from './ListRoomOnFloor';
+import { Link } from 'react-router-dom';
+import { ArrowBack } from '@material-ui/icons';
 
 function a11yProps(index) {
   return {
@@ -14,92 +18,80 @@ function a11yProps(index) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
 function ListRoom(props) {
   const id = props.match.params.id;
+  const classes = useStyles();
+
   const [data, setData] = useState([])
-  const [value, setValue] = useState(0);
+  const [buildingData, setBuildingData] = useState({})
+  const [floorSelect, setFloorSelect] = useState(1)
   const fetchData = async () => {
     try {
       const response = await buildingApi.read(id)
       setData(response.data.listRoomByFloor);
+      setBuildingData(response.data.item)
       console.log('Fetch building successfully: ', response);
     } catch (error) {
       console.log('Failed to fetch building list: ', error);
     }
   };
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleFloorChange = (event) => {
+    setFloorSelect(event.target.value)
   };
   useEffect(() => {
     fetchData();
   }, []);
   return (
     <>
-     <AppBar position="static">
-        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-          <Tab label="Floor 1" {...a11yProps(0)} />
-          <Tab label="Floor 2" {...a11yProps(1)} />
-          <Tab label="Floor 3" {...a11yProps(2)} />
-        </Tabs>
-      </AppBar>
-      <TabPanel value={value} index={0}>
-        Item One
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        Item Two
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Item Three
-      </TabPanel>
-      {
-        data.map(floor =>
-        (
-
-          <>
-            <div key={floor.floorNumber}>{floor.floorNumber}</div>
-            {
-              floor.listRooms.map(room=>(
+     <StyledLink
+        to="/managers"
+      >
+        <ArrowBack style={{ marginRight: '10px' }} /> Back
+      </StyledLink>
+      <h1>Building Id: {buildingData.buildingID}</h1>
+      <h3>Number Floor: {buildingData.numberFloor}</h3>
+      <FormControl className={classes.formControl}>
+        <InputLabel shrink htmlFor="age-native-label-placeholder">
+          Floor
+        </InputLabel>
+        <NativeSelect
+          value={floorSelect}
+          onChange={handleFloorChange}
+        >
+          {
+            data.map(floor =>
+              (
                 <>
-                 <div key={room._id}>{room.roomId}</div>
+                  <option key={floor.floorNumber} value={floor.floorNumber}>{floor.floorNumber}</option>
                 </>
-              ))
-            }
-          </>
-        )
-        )
-      }
-      
+              )
+            )
+          }
+        </NativeSelect>
+        <FormHelperText>Select Floor</FormHelperText>
+      </FormControl>
+      <ListRoomOnFloor />
     </>
-
-
-
   )
 }
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
+const StyledLink = styled(Link)`
+  color:#0085FF;
+  text-decoration: none;
+  text-align: start;
+  display: flex;
+  align-items: center;
+`
 
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.any.isRequired,
-  value: PropTypes.any.isRequired,
-};
 ListRoom.propTypes = {
 
 }

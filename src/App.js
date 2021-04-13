@@ -28,7 +28,8 @@ function App() {
   );
 }
 const StyledContainer = styled(Container)`
-  margin-top:80px;
+  margin-top:100px;
   margin-bottom:120px;
+  height:1000px;
 `
 export default App;

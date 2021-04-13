@@ -1,7 +1,6 @@
 import React from "react";
 import "../App.css";
 import { Link } from "react-router-dom";
-import { Button } from "@material-ui/core";
 import styled from "styled-components";
 
 function Header() {
@@ -64,11 +63,16 @@ function Header() {
     </StyledHeader>
   );
 }
-const StyledHeader = styled.nav`
+const StyledHeader = styled.div`
     z-index: 1;
+    display:flex;
     overflow: hidden;
     position: fixed;
     top: 0;
-    width: 100%;
+    width:100%;
+    height:70px;
+    align-items: center;
+    background-color: #0085FF;
+    padding:10px;
 `
 export default Header;

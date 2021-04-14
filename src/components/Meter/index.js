@@ -1,12 +1,11 @@
 import React from 'react'
 import { Route, Switch, useRouteMatch } from 'react-router'
 // import PropTypes from 'prop-types'
-import styled from 'styled-components'
 
 import ListMeter from './ListMeter'
 import MeterInfo from './MeterInfo'
 
-function Meter(props) {
+function Meter() {
   let { path } = useRouteMatch()
   return (
     <Switch>
@@ -18,9 +17,6 @@ function Meter(props) {
   )
 }
 
-// Meter.propTypes = {
-
-// }
 
 export default Meter
 

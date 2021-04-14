@@ -20,6 +20,32 @@ const useStyles2 = makeStyles({
     minWidth: 500,
   },
 });
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
 function ListBuilding(props) {
   const classes = useStyles2();
   const [page, setPage] = useState(0);
@@ -27,7 +53,7 @@ function ListBuilding(props) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   let { path, url } = useRouteMatch();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
- 
+
   const fetchData = async () => {
     try {
       const response = await buildingApi.getAll()
@@ -70,11 +96,11 @@ function ListBuilding(props) {
         <Table className={classes.table} aria-label="custom pagination table">
           <TableHead>
             <TableRow>
-              <TableTextHead align="center" >#</TableTextHead>
-              <TableTextHead align="center" >Id Building</TableTextHead>
-              <TableTextHead align="center" >Number Floor</TableTextHead>
-              <TableTextHead align="center" >Building Name</TableTextHead>
-              <TableTextHead align="center" >Action</TableTextHead>
+              <TableCell align="center" >#</TableCell>
+              <TableCell align="center" >Id Building</TableCell>
+              <TableCell align="center" >Number Floor</TableCell>
+              <TableCell align="center" >Building Name</TableCell>
+              <TableCell align="center" >Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -93,7 +119,7 @@ function ListBuilding(props) {
                   {row.numberFloor}
                 </TableCell>
                 <TableCell align="center">
-                  {!row.buildingName|| row.buildingName!=="" ? row.buildingName : "-"}
+                  {!row.buildingName?  "-": row.buildingName}
                 </TableCell>
 
                 <TableCell align="center">

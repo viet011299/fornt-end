@@ -12,8 +12,9 @@ import Paper from '@material-ui/core/Paper';
 import { Button, TableHead } from '@material-ui/core';
 import styled from 'styled-components'
 import TablePaginationActions from '../TablePaginationActions'
-import { Link, useRouteMatch, } from 'react-router-dom';
-import { ArrowBack } from '@material-ui/icons';
+import { Link } from 'react-router-dom';
+import ModalRoom from './ModalRoom';
+import roomApi from '../../../api/roomApi';
 
 const useStyles2 = makeStyles({
   table: {
@@ -21,7 +22,7 @@ const useStyles2 = makeStyles({
   },
 });
 
-function ListRoomOnFloor(props) {
+function ListRoomOnFloor({ floor, buildingData, fetchData }) {
   const classes = useStyles2();
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
@@ -35,19 +36,29 @@ function ListRoomOnFloor(props) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const handleDelete = async (roomId) => {
+    try {
+      const response = await roomApi.delete(roomId)
+      await fetchData();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    setData(floor.listRooms)
+  }, [floor])
   return (
     <>
       <StyledHeader>
-        <StyledTextHeader>Floor </StyledTextHeader>
-        <StyledButtonCreate variant="contained" color="primary"> Create</StyledButtonCreate>
+        <StyledTextHeader>Floor {floor.floorNumber}</StyledTextHeader>
       </StyledHeader>
       <StyledTable component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table">
           <TableHead>
             <TableRow>
-              <TableTextHead align="center" >#</TableTextHead>
-              <TableTextHead align="center" >Id Room</TableTextHead>
-              <TableTextHead align="center" >Action</TableTextHead>
+              <TableCell align="center" >#</TableCell>
+              <TableCell align="center" >Id Room</TableCell>
+              <TableCell align="center" >Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -60,18 +71,14 @@ function ListRoomOnFloor(props) {
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell align="center">
-                  {row.buildingID}
+                  {row.roomId}
                 </TableCell>
-
                 <TableCell align="center">
-                  <Button variant="contained" color="primary" style={{ marginLeft: "10px" }}>
-                    Edit
-                  </Button>
-                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }}>
+                  <ModalRoom roomData={row} buildingData={buildingData} fetchData={fetchData} />
+                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }} onClick={() => handleDelete(row._id)}>
                     Delete
                   </Button>
                 </TableCell>
-
               </TableRow>
             ))}
 
@@ -85,7 +92,7 @@ function ListRoomOnFloor(props) {
             <TableRow>
               <TablePagination
                 align="right"
-                rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
+                rowsPerPageOptions={[5, 10]}
                 colSpan={3}
                 count={data.length}
                 rowsPerPage={rowsPerPage}
@@ -129,7 +136,7 @@ const StyledLink = styled(Link)`
 `
 
 ListRoomOnFloor.propTypes = {
-
+  floor: PropTypes.object
 }
 
 export default ListRoomOnFloor

@@ -1,6 +1,6 @@
 import axiosClient from "./axioxClient";
-const url = '/building';
-class BuildingApi {
+const url = '/room';
+class RoomApi {
     getAll = (params) => {
    
         return axiosClient.get(url, { params });
@@ -21,5 +21,5 @@ class BuildingApi {
         return axiosClient.get(`${url}/${id}`);
     }
 }
-const buildingApi = new BuildingApi();
-export default buildingApi;
+const roomApi = new RoomApi();
+export default roomApi;

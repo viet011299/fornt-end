@@ -74,5 +74,6 @@ const StyledHeader = styled.div`
     align-items: center;
     background-color: #0085FF;
     padding:10px;
+    justify-content: center;
 `
 export default Header;

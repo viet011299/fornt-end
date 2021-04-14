@@ -11,6 +11,7 @@ import { FormControl, FormHelperText, InputLabel, NativeSelect, styled } from '@
 import ListRoomOnFloor from './ListRoomOnFloor';
 import { Link } from 'react-router-dom';
 import { ArrowBack } from '@material-ui/icons';
+import ModalRoom from './ModalRoom';
 
 function a11yProps(index) {
   return {
@@ -34,6 +35,8 @@ function ListRoom(props) {
   const [data, setData] = useState([])
   const [buildingData, setBuildingData] = useState({})
   const [floorSelect, setFloorSelect] = useState(1)
+  const [floorData, setFloorData] = useState({})
+  const [loading, setLoading] = useState(true)
   const fetchData = async () => {
     try {
       const response = await buildingApi.read(id)
@@ -44,42 +47,62 @@ function ListRoom(props) {
       console.log('Failed to fetch building list: ', error);
     }
   };
+
   const handleFloorChange = (event) => {
     setFloorSelect(event.target.value)
   };
-  useEffect(() => {
-    fetchData();
+
+  const getListRoom = () => {
+    const result = data.filter(floor => floor.floorNumber == floorSelect);
+    return result[0]
+  }
+
+  useEffect(async () => {
+    await fetchData()
+    setLoading(false)
   }, []);
+  useEffect(async () => {
+    setFloorData(getListRoom());
+  }, [data,floorSelect]);
+
+
   return (
     <>
-     <StyledLink
+      <StyledLink
         to="/managers"
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
-      <h1>Building Id: {buildingData.buildingID}</h1>
-      <h3>Number Floor: {buildingData.numberFloor}</h3>
-      <FormControl className={classes.formControl}>
-        <InputLabel shrink htmlFor="age-native-label-placeholder">
-          Floor
-        </InputLabel>
-        <NativeSelect
-          value={floorSelect}
-          onChange={handleFloorChange}
-        >
-          {
-            data.map(floor =>
-              (
-                <>
-                  <option key={floor.floorNumber} value={floor.floorNumber}>{floor.floorNumber}</option>
-                </>
-              )
-            )
-          }
-        </NativeSelect>
-        <FormHelperText>Select Floor</FormHelperText>
-      </FormControl>
-      <ListRoomOnFloor />
+      {
+        !loading &&
+        (
+          <>
+            <h1>Building Id: {buildingData.buildingID}</h1>
+            <h3>Number Floor: {buildingData.numberFloor}</h3>
+            <FormControl className={classes.formControl}>
+              <InputLabel shrink htmlFor="age-native-label-placeholder">
+                Floor
+              </InputLabel>
+              <NativeSelect
+                value={floorSelect}
+                onChange={handleFloorChange}
+              >
+                {
+                  data.map((floor, index) =>
+                    (
+                      <option key={index} value={floor.floorNumber}>{floor.floorNumber}</option>
+                    )
+                  )
+                }
+              </NativeSelect>
+              <FormHelperText>Select Floor</FormHelperText>
+            </FormControl>
+            <ModalRoom buildingData={buildingData} fetchData={fetchData}/>
+            <ListRoomOnFloor floor={floorData} />
+          </>
+        )
+      }
+
     </>
   )
 }

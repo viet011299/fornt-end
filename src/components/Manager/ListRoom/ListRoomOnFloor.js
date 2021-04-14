@@ -14,6 +14,7 @@ import styled from 'styled-components'
 import TablePaginationActions from '../TablePaginationActions'
 import { Link, useRouteMatch, } from 'react-router-dom';
 import { ArrowBack } from '@material-ui/icons';
+import ModalRoom from './ModalRoom';
 
 const useStyles2 = makeStyles({
   table: {
@@ -21,8 +22,9 @@ const useStyles2 = makeStyles({
   },
 });
 
-function ListRoomOnFloor(props) {
+function ListRoomOnFloor({floor}) {
   const classes = useStyles2();
+
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -35,10 +37,13 @@ function ListRoomOnFloor(props) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  useEffect(()=>{
+    setData(floor.listRooms)
+  },[floor])
   return (
     <>
       <StyledHeader>
-        <StyledTextHeader>Floor </StyledTextHeader>
+  <StyledTextHeader>Floor {floor.floorNumber}</StyledTextHeader>
         <StyledButtonCreate variant="contained" color="primary"> Create</StyledButtonCreate>
       </StyledHeader>
       <StyledTable component={Paper}>
@@ -60,9 +65,8 @@ function ListRoomOnFloor(props) {
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell align="center">
-                  {row.buildingID}
+                  {row.roomId}
                 </TableCell>
-
                 <TableCell align="center">
                   <Button variant="contained" color="primary" style={{ marginLeft: "10px" }}>
                     Edit
@@ -85,7 +89,7 @@ function ListRoomOnFloor(props) {
             <TableRow>
               <TablePagination
                 align="right"
-                rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
+                rowsPerPageOptions={[5, 10]}
                 colSpan={3}
                 count={data.length}
                 rowsPerPage={rowsPerPage}
@@ -129,7 +133,7 @@ const StyledLink = styled(Link)`
 `
 
 ListRoomOnFloor.propTypes = {
-
+  floor: PropTypes.object
 }
 
 export default ListRoomOnFloor

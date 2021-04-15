@@ -24,6 +24,7 @@ const useStyles2 = makeStyles({
 
 function ListRoomOnFloor({ floor, buildingData, fetchData }) {
   const classes = useStyles2();
+
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
   const [rowsPerPage, setRowsPerPage] = useState(5);

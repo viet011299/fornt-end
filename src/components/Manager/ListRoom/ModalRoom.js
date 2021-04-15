@@ -173,7 +173,6 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
               value={roomName}
               onChange={(e) => handleValue(e, setRoomName)}
             />
-
             <StyledFormControl >
               <InputLabel shrink htmlFor="age-native-label-placeholder">
                 Building

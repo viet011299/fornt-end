@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useParams } from 'react-router';
 import { Button, TextField } from '@material-ui/core';
 import styled from 'styled-components';
 import { ArrowBack } from '@material-ui/icons';
 import { Link, useHistory } from 'react-router-dom';
-import axios from 'axios';
 import buildingApi from '../../../api/buildingApi';
 
 
 
 function Detail(props) {
   const id = props.match.params.id;
-  const isAdd = (id == "create") ? true : false
-  const [buildingId, setBuildingId] = useState("")
-  const [numberFloor, setNumberFloor] = useState("")
+  const isAdd = (id === "create") ? true : false
   const [buildingName, setBuildingName] = useState("")
+  const [numberFloor, setNumberFloor] = useState("")
+  const [buildingInfo, setBuildingInfo] = useState("")
   const [error, setError] = useState(false)
   const history = useHistory()
 
@@ -25,9 +23,9 @@ function Detail(props) {
         try {
           const response = await buildingApi.read(id)
           const item = response.data.item
-          setBuildingId(item.buildingID ? item.buildingID : "")
-          setNumberFloor(item.numberFloor ? item.numberFloor : "")
           setBuildingName(item.buildingName ? item.buildingName : "")
+          setNumberFloor(item.numberFloor ? item.numberFloor : "")
+          setBuildingInfo(item.buildingInfo ? item.buildingInfo : "")
           console.log('Fetch building successfully: ', response);
         } catch (error) {
           console.log('Failed to fetch building list: ', error);
@@ -41,9 +39,9 @@ function Detail(props) {
     try {
       const response = await buildingApi.create(
         {
-          buildingID: buildingId,
+          buildingName: buildingName,
           numberFloor: numberFloor,
-          buildingName: buildingName
+          buildingInfo: buildingInfo
         }
       )
       history.push("/managers")
@@ -56,9 +54,9 @@ function Detail(props) {
       const response = await buildingApi.edit(
         id,
         {
-          buildingID: buildingId,
+          buildingName: buildingName,
           numberFloor: numberFloor,
-          buildingName: buildingName
+          buildingInfo: buildingInfo
         }
       )
       history.push("/managers")
@@ -85,11 +83,11 @@ function Detail(props) {
             shrink: true,
           }}
           id="outlined-required"
-          label="Building Id"
+          label="Building Name"
           variant="outlined"
-          placeholder="Building Id"
-          value={buildingId}
-          onChange={(e) => handleValue(e, setBuildingId)}
+          placeholder="Building Name"
+          value={buildingName}
+          onChange={(e) => handleValue(e, setBuildingName)}
         />
 
         <StyledTextField
@@ -109,11 +107,11 @@ function Detail(props) {
             shrink: true,
           }}
           id="outlined-required"
-          label="Building Name"
+          label="Building Info"
           variant="outlined"
-          placeholder="Building Name"
-          value={buildingName}
-          onChange={(e) => handleValue(e, setBuildingName)}
+          placeholder="Building Info"
+          value={buildingInfo}
+          onChange={(e) => handleValue(e, setBuildingInfo)}
         />
         <StyledTextField
           required

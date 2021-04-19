@@ -57,8 +57,8 @@ function MeterCard({ meter }) {
         avatar={
           <HomeIcon />
         }
-        title={`Room ${meter.roomId}`}
-        subheader={meter.roomName}
+        title={`Room ${meter.roomName}`}
+        subheader={meter.roomInfo}
       />
       <CardContent>
         <Typography variant="h6">

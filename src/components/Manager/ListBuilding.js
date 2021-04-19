@@ -9,11 +9,14 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { Button, TableHead } from '@material-ui/core';
+import { Button, IconButton, TableHead, Tooltip } from '@material-ui/core';
 import styled from 'styled-components'
 import TablePaginationActions from './TablePaginationActions'
 import { Link, useRouteMatch, } from 'react-router-dom';
 import buildingApi from '../../api/buildingApi';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles2 = makeStyles({
   table: {
@@ -51,9 +54,18 @@ function ListBuilding(props) {
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  let { path, url } = useRouteMatch();
+  let {  url } = useRouteMatch();
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
+
+
+  const handleChangePage = ( newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const fetchData = async () => {
     try {
       const response = await buildingApi.getAll()
@@ -63,17 +75,16 @@ function ListBuilding(props) {
       console.log('Failed to fetch building list: ', error);
     }
   };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   useEffect(() => {
-
+    const fetchData = async () => {
+      try {
+        const response = await buildingApi.getAll()
+        setData(response.data);
+        console.log('Fetch building successfully: ', response);
+      } catch (error) {
+        console.log('Failed to fetch building list: ', error);
+      }
+    };
     fetchData();
   }, []);
   const handleDelete = async (id) => {
@@ -97,9 +108,9 @@ function ListBuilding(props) {
           <TableHead>
             <TableRow>
               <TableCell align="center" >#</TableCell>
-              <TableCell align="center" >Id Building</TableCell>
-              <TableCell align="center" >Number Floor</TableCell>
               <TableCell align="center" >Building Name</TableCell>
+              <TableCell align="center" >Number Floor</TableCell>
+              <TableCell align="center" >Building Info</TableCell>
               <TableCell align="center" >Action</TableCell>
             </TableRow>
           </TableHead>
@@ -113,25 +124,30 @@ function ListBuilding(props) {
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell align="center">
-                  {row.buildingID}
+                  {row.buildingName}
                 </TableCell>
                 <TableCell align="center">
                   {row.numberFloor}
                 </TableCell>
                 <TableCell align="center">
-                  {!row.buildingName?  "-": row.buildingName}
+                  {!row.buildingInfo ? "-" : row.buildingInfo}
                 </TableCell>
 
                 <TableCell align="center">
-                  <Button variant="contained" color="inherit" >
-                    <StyledLinkView to={`${url}/${row._id}/room`}>View</StyledLinkView>
-                  </Button>
-                  <Button variant="contained" color="primary" style={{ marginLeft: "10px" }}>
-                    <StyledLink to={`${url}/${row._id}`}>Edit</StyledLink>
-                  </Button>
-                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }} onClick={() => handleDelete(row._id)}>
-                    Delete
-                  </Button>
+                  <Tooltip title="View">
+                    <StyledLinkView to={`${url}/${row._id}/room`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <StyledLink to={`${url}/${row._id}`}>
+                      <IconButton size="small" color="primary">
+                        <EditIcon />
+                      </IconButton>
+                    </StyledLink>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                  <IconButton size="small" color="secondary" onClick={() => handleDelete(row._id)}><DeleteIcon /> </IconButton>
+                  </Tooltip>
+                
                 </TableCell>
 
               </TableRow>

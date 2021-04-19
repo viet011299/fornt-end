@@ -8,8 +8,6 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import buildingApi from '../../api/buildingApi';
-import MeterCard from './MeterCard';
-import styled from 'styled-components';
 import ListFloor from './ListFloor';
 
 
@@ -78,7 +76,7 @@ export default function ScrollableTabsButtonAuto() {
           {
             dataBuilding.map((building, index) =>
             (
-              <Tab label={`Building ${building.buildingID}`} {...a11yProps(index)} key={index} />
+              <Tab label={`Building ${building.buildingName}`} {...a11yProps(index)} key={index} />
             )
             )
           }
@@ -93,14 +91,8 @@ export default function ScrollableTabsButtonAuto() {
           dataBuilding.map((building, index) =>
           (
             <TabPanel value={value} index={index} dir={theme.direction} key={index}>
-              {building.buildingID} {building.buildingName ? building.buildingName : ""}
+              {building.buildingName} {building.buildingInfo ? building.buildingInfo : ""}
               <ListFloor buildingData={building} />
-              {/* <StyledListCard>
-                <MeterCard></MeterCard>
-                <MeterCard></MeterCard>
-                <MeterCard></MeterCard>
-                <MeterCard></MeterCard>
-              </StyledListCard> */}
             </TabPanel>
           )
           )
@@ -137,8 +129,3 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 };
-const StyledListCard = styled.div`
-  display:flex;
-  flex-wrap:wrap;
-  justify-content: space-evenly;
-`

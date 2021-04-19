@@ -1,6 +1,5 @@
 import React from 'react';
 import { Route, useRouteMatch, Switch } from 'react-router-dom';
-import styled from 'styled-components';
 import Detail from './Detail';
 import ListBuilding from './ListBuilding';
 import ListRoom from './ListRoom';

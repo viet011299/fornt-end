@@ -9,12 +9,12 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { Button, TableHead } from '@material-ui/core';
+import {  IconButton, TableHead, Tooltip } from '@material-ui/core';
 import styled from 'styled-components'
 import TablePaginationActions from '../TablePaginationActions'
-import { Link } from 'react-router-dom';
 import ModalRoom from './ModalRoom';
 import roomApi from '../../../api/roomApi';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles2 = makeStyles({
   table: {
@@ -58,7 +58,8 @@ function ListRoomOnFloor({ floor, buildingData, fetchData }) {
           <TableHead>
             <TableRow>
               <TableCell align="center" >#</TableCell>
-              <TableCell align="center" >Id Room</TableCell>
+              <TableCell align="center" >Room Name</TableCell>
+              <TableCell align="center" >Room Info</TableCell>
               <TableCell align="center" >Action</TableCell>
             </TableRow>
           </TableHead>
@@ -72,13 +73,16 @@ function ListRoomOnFloor({ floor, buildingData, fetchData }) {
                   {page * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell align="center">
-                  {row.roomId}
+                  {row.roomName}
+                </TableCell>
+                <TableCell align="center">
+                  {row.roomInfo}
                 </TableCell>
                 <TableCell align="center">
                   <ModalRoom roomData={row} buildingData={buildingData} fetchData={fetchData} />
-                  <Button variant="contained" color="secondary" style={{ marginLeft: "10px" }} onClick={() => handleDelete(row._id)}>
-                    Delete
-                  </Button>
+                  <Tooltip title="Delete">
+                  <IconButton size="small" color="secondary" onClick={() => handleDelete(row._id)}><DeleteIcon /> </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
@@ -94,7 +98,7 @@ function ListRoomOnFloor({ floor, buildingData, fetchData }) {
               <TablePagination
                 align="right"
                 rowsPerPageOptions={[5, 10]}
-                colSpan={3}
+                colSpan={4}
                 count={data.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -116,25 +120,16 @@ function ListRoomOnFloor({ floor, buildingData, fetchData }) {
 const StyledTable = styled(TableContainer)`
   margin-top:20px;
 `
-const TableTextHead = styled(TableCell)`
-  font-weight: bold;
-  font-size:34px;
-`
+
 const StyledHeader = styled.div`
   display:flex;
   align-items: flex-end;
 `
-const StyledButtonCreate = styled(Button)`
-  height:40px;
-  background-color: green !important;
 
-`
 const StyledTextHeader = styled.h1`
   flex:1;
 `
-const StyledLink = styled(Link)`
-  text-decoration: none;
-`
+
 
 ListRoomOnFloor.propTypes = {
   floor: PropTypes.object

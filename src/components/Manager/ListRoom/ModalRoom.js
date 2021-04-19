@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, FormControl, FormHelperText, InputLabel, makeStyles, Modal, NativeSelect, Select, TextField } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Button, FormControl, FormHelperText, IconButton, InputLabel, makeStyles, Modal, NativeSelect, TextField, Tooltip } from '@material-ui/core';
 import styled from 'styled-components';
 import { HighlightOff } from '@material-ui/icons';
 import roomApi from '../../../api/roomApi';
-
+import EditIcon from '@material-ui/icons/Edit';
 
 
 function getModalStyle() {
@@ -31,16 +30,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ModalRoom({ roomData, buildingData, fetchData }) {
+
   const isEdit = roomData ? true : false
   const buildingProp = buildingData
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
-  const [roomId, setRoomId] = useState("")
   const [roomName, setRoomName] = useState("")
+  const [roomInfo, setRoomInfo] = useState("")
   const [building, setBuilding] = useState("")
   const [floor, setFloor] = useState(1)
-  const [smartMeter, setSmartMeter] = useState("")
 
   const handleValue = (e, setValue) => {
     setValue(e.target.value)
@@ -53,42 +52,52 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
     setAllDefault();
   };
   const setAllDefault = () => {
-    setRoomId("")
     setRoomName("")
-    setSmartMeter("")
+    setRoomInfo("")
     setFloor(1)
     setBuilding(buildingProp._id)
   }
   const setData = (roomData) => {
-    setRoomId(roomData.roomId)
+
     setRoomName(roomData.roomName)
-    setSmartMeter(roomData.smartMeter)
+    setRoomInfo(roomData.roomInfo)
     setFloor(roomData.floor)
     setBuilding(roomData.buildingId)
   }
   useEffect(() => {
+    const setAllDefault = () => {
+      setRoomName("")
+      setRoomInfo("")
+      setFloor(1)
+      setBuilding(buildingProp._id)
+    }
+    const setData = (roomData) => {
+
+      setRoomName(roomData.roomName)
+      setRoomInfo(roomData.roomInfo)
+      setFloor(roomData.floor)
+      setBuilding(roomData.buildingId)
+    }
     if (isEdit) {
       setData(roomData)
     } else {
       setAllDefault()
     }
-  }, [])
+  }, [roomData])
   const handleSave = async function () {
     console.log({
-      roomId: roomId,
       roomName: roomName,
+      roomInfo: roomInfo,
       buildingId: building,
       floor: floor,
-      smartMeter: smartMeter
     });
     try {
       const response = await roomApi.create(
         {
-          roomId: roomId,
           roomName: roomName,
+          roomInfo: roomInfo,
           buildingId: building,
           floor: floor,
-          smartMeter: smartMeter
         }
       )
       await fetchData()
@@ -103,11 +112,10 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
       const response = await roomApi.edit(
         roomData._id,
         {
-          roomId: roomId,
           roomName: roomName,
+          roomInfo: roomInfo,
           buildingId: building,
           floor: floor,
-          smartMeter: smartMeter
         }
       )
       await fetchData()
@@ -119,18 +127,19 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
 
   const options = []
   for (let i = 1; i <= buildingProp.numberFloor; i++) {
-    options.push(<option value={i}>{i}</option>);
+    options.push(<option value={i} key={i}>{i}</option>);
   }
-
 
   return (
     <>
       {
         !isEdit ?
           <StyledButtonCreate variant="contained" color="primary" onClick={handleOpen}> Create Room</StyledButtonCreate> :
-          <Button variant="contained" color="primary" style={{ marginLeft: "10px" }} onClick={handleOpen}>
-            Edit
-           </Button>
+          <Tooltip title="Edit">
+            <IconButton size="small" color="primary" onClick={handleOpen}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
       }
       <Modal
         open={open}
@@ -155,11 +164,11 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
                 shrink: true,
               }}
               id="outlined-required"
-              label="Room Id"
+              label="Room Name"
               variant="outlined"
-              placeholder="Room Id"
-              value={roomId}
-              onChange={(e) => handleValue(e, setRoomId)}
+              placeholder="Room Name"
+              value={roomName}
+              onChange={(e) => handleValue(e, setRoomName)}
             />
 
             <StyledTextField
@@ -167,11 +176,11 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
                 shrink: true,
               }}
               id="outlined"
-              label="Room Name"
+              label="Room Info"
               variant="outlined"
-              placeholder="Room Name"
-              value={roomName}
-              onChange={(e) => handleValue(e, setRoomName)}
+              placeholder="Room Info"
+              value={roomInfo}
+              onChange={(e) => handleValue(e, setRoomInfo)}
             />
             <StyledFormControl >
               <InputLabel shrink htmlFor="age-native-label-placeholder">
@@ -201,19 +210,6 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
               <FormHelperText>Select Floor</FormHelperText>
             </StyledFormControl>
 
-            <StyledFormControl >
-              <InputLabel shrink htmlFor="age-native-label-placeholder">
-                Smart Meter
-              </InputLabel>
-              <NativeSelect
-                value={smartMeter}
-                onChange={(e) => handleValue(e, setSmartMeter)}
-              >
-                <option> </option>
-                <option>E3 </option>
-              </NativeSelect>
-              <FormHelperText>Select Smart Meter</FormHelperText>
-            </StyledFormControl>
             <StyledTextField
               required
               error

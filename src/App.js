@@ -4,11 +4,9 @@ import Header from "./components/Header";
 import Footer from "./components/Fotter";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Meter from "./components/Meter";
-import MeterInfo from "./components/Meter/MeterInfo"
 import Manager from "./components/Manager"
 import { Container } from "@material-ui/core";
 import styled from "styled-components";
-import Detail from "./components/Manager/Detail";
 
 function App() {
   return (

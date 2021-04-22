@@ -1,4 +1,4 @@
-import axiosClient from "./axioxClient";
+import axiosClient from "./axiosClient";
 const url = '/building';
 class BuildingApi {
     getAll = (params) => {

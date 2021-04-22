@@ -75,11 +75,6 @@ function MeterCard({ meter }) {
             </IconButton>
           </Tooltip>
         }
-
-
-        <IconButton aria-label="add to favorites">
-          <HomeIcon />
-        </IconButton>
       </CardActions>
     </StyledCard>
   )

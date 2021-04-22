@@ -11,7 +11,14 @@ function Footer() {
     </StyledFooter>
   );
 }
-const StyledFooter = styled.footer`
+const StyledFooter = styled.div`
+    width:80%;
+    display:flex;
     width:100%;
+    height:100px;
+    align-items: center;
+    background-color: #0085FF;
+    justify-content: center;
+    color:#FFF;
 `
 export default Footer;

@@ -62,10 +62,11 @@ function ListRoom(props) {
     fetchData()
     setLoading(false)
   }, []);
+
   useEffect(() => {
     setFloorData(getListRoom());
   }, [data, floorSelect]);
-
+  console.log(floorData);
 
   return (
     <>

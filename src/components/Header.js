@@ -67,7 +67,7 @@ function Header() {
             marginTop: "10px",
             marginRight: "40px",
           }}
-          to="/managers"
+          to="/manager"
         >
           <li>Manager Building</li>
         </Link>

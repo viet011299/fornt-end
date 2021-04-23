@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, FormControl, FormHelperText, IconButton, InputLabel, makeStyles, Modal, NativeSelect, TextField, Tooltip } from '@material-ui/core';
+import { Button, CircularProgress, FormControl, FormHelperText, IconButton, InputLabel, makeStyles, Modal, NativeSelect, TextField, Tooltip } from '@material-ui/core';
 import styled from 'styled-components';
 import { HighlightOff } from '@material-ui/icons';
 import roomApi from '../../../api/roomApi';
@@ -40,6 +40,9 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
   const [roomInfo, setRoomInfo] = useState("")
   const [building, setBuilding] = useState("")
   const [floor, setFloor] = useState(1)
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleValue = (e, setValue) => {
     setValue(e.target.value)
@@ -56,9 +59,13 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
     setRoomInfo("")
     setFloor(1)
     setBuilding(buildingProp._id)
+    setErrorDefault()
+  }
+  const setErrorDefault = () => {
+    setError("")
+    setIsError(false)
   }
   const setData = (roomData) => {
-
     setRoomName(roomData.roomName)
     setRoomInfo(roomData.roomInfo)
     setFloor(roomData.floor)
@@ -85,12 +92,8 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
     }
   }, [roomData])
   const handleSave = async function () {
-    console.log({
-      roomName: roomName,
-      roomInfo: roomInfo,
-      buildingId: building,
-      floor: floor,
-    });
+    setErrorDefault()
+    setIsLoading(true)
     try {
       const response = await roomApi.create(
         {
@@ -101,13 +104,29 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
         }
       )
       await fetchData()
+      setIsLoading(false)
       handleClose()
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   }
 
   const handleEdit = async function () {
+    setErrorDefault()
+    setIsLoading(true)
     try {
       const response = await roomApi.edit(
         roomData._id,
@@ -119,9 +138,23 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
         }
       )
       await fetchData()
+      setIsLoading(false)
       handleClose()
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   }
 
@@ -209,15 +242,16 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
               </NativeSelect>
               <FormHelperText>Select Floor</FormHelperText>
             </StyledFormControl>
+            {
+              isLoading &&
+              <CircularProgress style={{ marginBottom: "10px" }} />
+            }
 
-            <StyledTextField
-              required
-              error
-              id="outlined-error-helper-text"
-              label="Error"
-              helperText="Incorrect entry."
-              variant="outlined"
-            />
+            {isError && (
+              <StyledError>
+                {error}
+              </StyledError>
+            )}
             {!isEdit ?
               <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
               <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
@@ -231,12 +265,9 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
   )
 }
 
-ModalRoom.propTypes = {
-
-}
 const StyledModal = styled.div`
-height:600px;
-overflow-y:scroll;
+  height:600px;
+  overflow-y:scroll;
 `
 
 const StyledNodalHeader = styled.div`
@@ -272,6 +303,11 @@ const StyledButtonCreate = styled(Button)`
   height:40px;
   background-color: green !important;
 
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
 `
 export default ModalRoom
 

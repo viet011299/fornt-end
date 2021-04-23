@@ -14,6 +14,7 @@ import My404Component from "./components/My404Component";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { loginSuccess } from "../src/store/user"
+import ManagerMeter from "./components/ManagerMeter";
 
 function PrivateRoute({ component: Component, authed, ...rest }) {
   return (
@@ -70,7 +71,8 @@ function App() {
               <Switch>
                 <Route exact path="/" component={Home} />
                 <PrivateRoute authed={user} path="/meters" component={Meter} />
-                <PrivateRoute authed={user} path="/managers" component={Manager} />
+                <PrivateRoute authed={user} path="/manager" component={Manager} />
+                <PrivateRoute authed={user} path="/manager-meter" component={ManagerMeter} />
                 <LoginRoute authed={!user} path="/login" component={Login} />
                 <Route path='*' exact component={My404Component} />
               </Switch>

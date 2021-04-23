@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { ArrowBack } from '@material-ui/icons';
 import ModalRoom from './ModalRoom';
 import styled from 'styled-components'
+import { objectLength } from '../../../helper/helper';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -25,14 +26,16 @@ function ListRoom(props) {
   const [data, setData] = useState([])
   const [buildingData, setBuildingData] = useState({})
   const [floorSelect, setFloorSelect] = useState(1)
-  const [floorData, setFloorData] = useState({})
+  // const [floorData, setFloorData] = useState({})
+
   const [loading, setLoading] = useState(true)
-  
+
   const fetchData = async () => {
     try {
       const response = await buildingApi.read(id)
       setData(response.data.listRoomByFloor);
       setBuildingData(response.data.item)
+      setLoading(false)
       console.log('Fetch building successfully: ', response);
     } catch (error) {
       console.log('Failed to fetch building list: ', error);
@@ -44,29 +47,14 @@ function ListRoom(props) {
   };
 
   const getListRoom = () => {
-    const result = data.filter(floor => floor.floorNumber === floorSelect);
+    const result = data.filter(data => data.floorNumber == floorSelect);
     return result[0]
   }
 
-  useEffect( () => {
-    const fetchData = async () => {
-      try {
-        const response = await buildingApi.read(id)
-        setData(response.data.listRoomByFloor);
-        setBuildingData(response.data.item)
-        console.log('Fetch building successfully: ', response);
-      } catch (error) {
-        console.log('Failed to fetch building list: ', error);
-      }
-    };
-    fetchData()
-    setLoading(false)
-  }, []);
-
   useEffect(() => {
-    setFloorData(getListRoom());
-  }, [data, floorSelect]);
-  console.log(floorData);
+    fetchData()
+  }, []);
+  const floorData = getListRoom()
 
   return (
     <>
@@ -79,7 +67,7 @@ function ListRoom(props) {
         !loading &&
         (
           <>
-            <h1>Building Id: {buildingData.buildingName} {buildingData.buildingInfo ? `- ${buildingData.buildingInfo}` : ''}</h1>
+            <h1>Building Name: {buildingData.buildingName} {buildingData.buildingInfo ? `- ${buildingData.buildingInfo}` : ''}</h1>
             <h3>Number Floor: {buildingData.numberFloor}</h3>
             <StyledSelectCreate>
               <StyledSelect className={classes.formControl}>
@@ -102,11 +90,11 @@ function ListRoom(props) {
               </StyledSelect>
               <ModalRoom buildingData={buildingData} fetchData={fetchData} />
             </StyledSelectCreate>
-            <ListRoomOnFloor floor={floorData} buildingData={buildingData} fetchData={fetchData} />
+            <ListRoomOnFloor floorData={floorData} floorSelect={floorSelect} buildingData={buildingData} fetchData={fetchData} />
+
           </>
         )
       }
-
     </>
   )
 }

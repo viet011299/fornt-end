@@ -44,7 +44,7 @@ function Detail(props) {
           buildingInfo: buildingInfo
         }
       )
-      history.push("/managers")
+      history.push("/manager")
     } catch (error) {
       console.log(error);
     }
@@ -59,7 +59,7 @@ function Detail(props) {
           buildingInfo: buildingInfo
         }
       )
-      history.push("/managers")
+      history.push("/manager")
     } catch (error) {
       console.log(error);
     }
@@ -70,7 +70,7 @@ function Detail(props) {
   return (
     <div>
       <StyledLink
-        to="/managers"
+        to="/manager"
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
@@ -113,14 +113,14 @@ function Detail(props) {
           value={buildingInfo}
           onChange={(e) => handleValue(e, setBuildingInfo)}
         />
-        <StyledTextField
+        {/* <StyledTextField
           required
           error
           id="outlined-error-helper-text"
           label="Error"
           helperText="Incorrect entry."
           variant="outlined"
-        />
+        /> */}
 
         {isAdd ?
           <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :

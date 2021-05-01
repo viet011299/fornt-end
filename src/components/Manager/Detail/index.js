@@ -14,8 +14,14 @@ function Detail(props) {
   const [buildingName, setBuildingName] = useState("")
   const [numberFloor, setNumberFloor] = useState("")
   const [buildingInfo, setBuildingInfo] = useState("")
-  const [error, setError] = useState(false)
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
   const history = useHistory()
+
+  const setErrorDefault = () => {
+    setError("")
+    setIsError(false)
+  }
 
   useEffect(() => {
     if (!isAdd) {
@@ -28,6 +34,7 @@ function Detail(props) {
           setBuildingInfo(item.buildingInfo ? item.buildingInfo : "")
           console.log('Fetch building successfully: ', response);
         } catch (error) {
+          
           console.log('Failed to fetch building list: ', error);
         }
       };
@@ -44,8 +51,9 @@ function Detail(props) {
           buildingInfo: buildingInfo
         }
       )
-      history.push("/managers")
+      history.push("/manager")
     } catch (error) {
+      
       console.log(error);
     }
   }
@@ -59,18 +67,20 @@ function Detail(props) {
           buildingInfo: buildingInfo
         }
       )
-      history.push("/managers")
+      history.push("/manager")
     } catch (error) {
       console.log(error);
     }
   }
+
   const handleValue = (e, setValue) => {
     setValue(e.target.value)
   }
+
   return (
     <div>
       <StyledLink
-        to="/managers"
+        to="/manager"
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
@@ -91,6 +101,7 @@ function Detail(props) {
         />
 
         <StyledTextField
+          required
           id="outlined-number"
           label="Number Floor"
           type="number"
@@ -113,14 +124,14 @@ function Detail(props) {
           value={buildingInfo}
           onChange={(e) => handleValue(e, setBuildingInfo)}
         />
-        <StyledTextField
+        {/* <StyledTextField
           required
           error
           id="outlined-error-helper-text"
           label="Error"
           helperText="Incorrect entry."
           variant="outlined"
-        />
+        /> */}
 
         {isAdd ?
           <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :

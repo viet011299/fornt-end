@@ -59,7 +59,7 @@ function ListRoom(props) {
   return (
     <>
       <StyledLink
-        to="/managers"
+        to="/manager"
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>

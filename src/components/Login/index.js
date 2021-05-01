@@ -66,9 +66,9 @@ function Login(props) {
             shrink: true,
           }}
           id="standard-full-required"
-          label="Username"
+          label="Email"
           variant="standard"
-          placeholder="Username"
+          placeholder="Email"
           value={email}
           onChange={(e) => handleValue(e, setEmail)}
         />

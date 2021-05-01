@@ -32,3 +32,8 @@ footer {
   background: #0085FF;
   color: white;
 }
+.MuiPaper-root{
+  border-radius:10px;
+  border: 1px solid rgba(122,123,151,.3);
+  box-shadow: 0 0.46875rem 2.1875rem #3b3e6608, 0 0.9375rem 1.40625rem #3b3e6608, 0 0.25rem 0.53125rem #3b3e660d, 0 0.125rem 0.1875rem #3b3e6608;
+}

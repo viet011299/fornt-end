@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { loginSuccess } from "../src/store/user"
 import ManagerMeter from "./components/ManagerMeter";
-
+import 'antd/dist/antd.css';
 function PrivateRoute({ component: Component, authed, ...rest }) {
   return (
     <Route

@@ -1,12 +1,13 @@
 import React from 'react'
+import styled from 'styled-components';
 import ScrollableTabsButtonAuto from './ScrollableTabsButtonAuto'
 
 function ListMeter(props) {
   return (
     <>
-      <h1>
+      <StyledHeader>
         List Meter
-    </h1>
+    </StyledHeader>
       <ScrollableTabsButtonAuto />
     </>
   )
@@ -14,6 +15,8 @@ function ListMeter(props) {
 
 ListMeter.propTypes = {
 }
-
+const StyledHeader = styled.h1`
+  text-align: center;
+`
 export default ListMeter
 

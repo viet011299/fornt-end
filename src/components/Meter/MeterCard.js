@@ -53,14 +53,21 @@ function MeterCard({ meter }) {
 
   return (
     <StyledCard className={classes.root}>
-      <CardHeader
+      <StyledCardHeader
         avatar={
           <HomeIcon />
         }
         title={`Room ${meter.roomName}`}
         subheader={meter.roomInfo}
+        co
       />
       <CardContent>
+        <Typography variant="h6">
+          P: 40 W
+        </Typography>
+        <Typography variant="h6">
+          Total P: x W
+        </Typography>
         <Typography variant="h6">
           P: x W
         </Typography>
@@ -90,5 +97,8 @@ const StyledLink = styled(Link)`
   color:#0085FF;
   text-decoration: none;
 `
+const StyledCardHeader = styled(CardHeader)`{
+  background-color:silver;
+}`
 export default MeterCard
 

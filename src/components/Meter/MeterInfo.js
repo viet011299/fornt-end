@@ -6,17 +6,22 @@ import styled from 'styled-components';
 import { ArrowBack } from '@material-ui/icons'
 import io from "socket.io-client"
 import meterApi from '../../api/meterApi';
-// MeterInfo.propTypes = {
+import moment from "moment"
 
-// };
 const URL = "http://localhost:6969";
-// const socket = io(URL)
+const formatDate = (date)=>{
+  const format = "HH:mm:ss DD-MM-YYYY"
+  return moment(date).format(format);
+}
+
 function MeterInfo(props) {
   const meterId = props.match.params.id;
-  const [meter, setMeter] = useState([])
+  const [meter, setMeter] = useState({})
   const [listData, setListData] = useState([])
   const [uData, setUData] = useState([])
   const [iData, setIData] = useState([])
+  const [wData, setWData] = useState([])
+  const [kWhData, setKWhData] = useState([])
   const series = [
     {
       name: "U",
@@ -30,14 +35,6 @@ function MeterInfo(props) {
         224,
       ],
     },
-    // {
-    //   name: "I",
-    //   data: [28, 284, 9394, 42710, 76026, 191853, 501538, 1029651, 1255481],
-    // },
-    // {
-    //   name: "W",
-    //   data: [17, 259, 1666, 2996, 6472, 49675, 140658, 238619, 269567],
-    // },
   ];
   const seriesU = [
     {
@@ -60,7 +57,13 @@ function MeterInfo(props) {
         format: "HH:mm:ss dd/MM/yy",
       },
     },
+    animations: {
+      initialAnimation: {
+        enabled: false
+      }
+    }
   };
+
   const seriesI = [
     {
       name: "A",
@@ -87,7 +90,7 @@ function MeterInfo(props) {
   const seriesW = [
     {
       name: "W",
-      data: uData
+      data: wData
     }
   ]
   const optionsW = {
@@ -105,8 +108,41 @@ function MeterInfo(props) {
         format: "HH:mm:ss dd/MM/yy",
       },
     },
+    animations: {
+      initialAnimation: {
+        enabled: false
+      }
+    }
   };
-  
+
+  const serieskWh = [
+    {
+      name: "kWh",
+      data: kWhData
+    }
+  ]
+  const optionskWh = {
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "smooth",
+    },
+    xaxis: {
+      type: "date",
+    },
+    tooltip: {
+      x: {
+        format: "HH:mm:ss dd/MM/yy",
+      },
+    },
+    animations: {
+      initialAnimation: {
+        enabled: false
+      }
+    }
+  };
+
   const options = {
     dataLabels: {
       enabled: false,
@@ -159,13 +195,18 @@ function MeterInfo(props) {
   const setData = () => {
     const u = []
     const i = []
+    const w = []
+    const kWh = []
     listData.forEach(data => {
-      u.push({ x: data.time,y: data.v })
-      i.push({ x:data.time, y:data.a})
+      u.push({ x: formatDate(data.time), y: data.v })
+      i.push({ x: formatDate(data.time), y: data.a })
+      w.push({ x: formatDate(data.time), y: data.w })
+      kWh.push({ x: formatDate(data.time), y: data.kWh })
     })
-    console.log(u);
     setUData(u)
     setIData(i)
+    setWData(w)
+    setKWhData(kWh)
   }
   return (
     <div
@@ -178,15 +219,15 @@ function MeterInfo(props) {
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
-      <h1>Meter {meterId}</h1>
-      <br />
-
+      <StyledHeader>Meter {meter.meterId || ""}</StyledHeader>
+      <StyledSubHeader>Volt</StyledSubHeader>
       <ReactApexChart
         options={optionsU}
         series={seriesU}
         type="area"
         height={350}
       />
+       <StyledSubHeader>Ampe</StyledSubHeader>
       <ReactApexChart
         options={optionsI}
         series={seriesI}
@@ -194,6 +235,19 @@ function MeterInfo(props) {
         height={350}
       />
       <ReactApexChart
+        options={optionsW}
+        series={seriesW}
+        type="area"
+        height={350}
+      />
+
+      <ReactApexChart
+        options={optionskWh}
+        series={serieskWh}
+        type="area"
+        height={350}
+      />
+        <ReactApexChart
         options={options}
         series={series}
         type="area"
@@ -207,5 +261,12 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   text-align: start;
   display: flex;
+`
+const StyledHeader = styled.h1`
+  text-align: center;
+`
+const StyledSubHeader = styled.h3`
+  text-align: center;
+  color:#0085FF;
 `
 export default MeterInfo;

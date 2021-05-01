@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { loginSuccess } from "../src/store/user"
 import ManagerMeter from "./components/ManagerMeter";
-
+import 'antd/dist/antd.css';
 function PrivateRoute({ component: Component, authed, ...rest }) {
   return (
     <Route
@@ -43,19 +43,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const { user } = useSelector(state => state.user)
   useEffect(() => {
-    if (sessionStorage.id) {
+    if (localStorage.id) {
       const data = loginSuccess({
-        id: sessionStorage.id,
-        name: sessionStorage.name
+        id: localStorage.id,
+        name: localStorage.name
       })
       dispatch(data)
     }
   }, [dispatch])
   useEffect(() => {
-    if (sessionStorage.id) {
+    if (localStorage.id) {
       const data = loginSuccess({
-        id: sessionStorage.id,
-        name: sessionStorage.name
+        id: localStorage.id,
+        name: localStorage.name
       })
       dispatch(data)
     }
@@ -87,7 +87,7 @@ function App() {
   );
 }
 const StyledContainer = styled(Container)`
-  margin-top:100px;
+  margin-top:70px;
   margin-bottom:120px;
   // min-height:900px;
 `

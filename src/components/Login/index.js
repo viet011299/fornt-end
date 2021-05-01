@@ -33,8 +33,8 @@ function Login(props) {
         }
       )
       const dataSave = response.data
-      sessionStorage.setItem("id", dataSave.id)
-      sessionStorage.setItem("name", dataSave.name)
+      localStorage.setItem("id", dataSave.id)
+      localStorage.setItem("name", dataSave.name)
       const dataUser = loginSuccess(dataSave)
       dispatch(dataUser)
       setIsLoading(false)

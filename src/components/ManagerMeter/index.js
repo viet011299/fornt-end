@@ -108,9 +108,6 @@ function ManagerMeter() {
                     <StyledLinkView to={`${url}/${row._id}/room`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
                   </Tooltip>
                   <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
-                  <Tooltip title="Delete">
-                    <IconButton size="small" color="secondary"><DeleteIcon /> </IconButton>
-                  </Tooltip>
                 </TableCell>
 
               </TableRow>
@@ -159,6 +156,8 @@ const StyledHeader = styled.div`
 
 const StyledTextHeader = styled.h1`
   flex:1;
+  text-align: center;
+  margin-top:20px;
 `
 const StyledLink = styled(Link)`
   text-decoration: none;

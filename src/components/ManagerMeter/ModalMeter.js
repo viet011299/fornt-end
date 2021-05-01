@@ -55,6 +55,9 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     setRoomId("")
     setBuildingId("")
     setFloor(0)
+    setBuildings([])
+    setFloors([])
+    setRooms([])
     setErrorDefault()
   }
   const setErrorDefault = () => {
@@ -116,23 +119,27 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
 
   const putFloors = (buildingId) => {
     const building = listBuilding.filter(item => item.building._id === buildingId)
-    console.log("a",listBuilding);
+    console.log("building", listBuilding);
     const options = []
-    for (let i = 1; i <= building[0].building.numberFloor; i++) {
-      options.push(<option value={i} key={i}>{i}</option>);
+    if (building.length > 0) {
+      for (let i = 1; i <= building[0].building.numberFloor; i++) {
+        options.push(<option value={i} key={i}>{i}</option>);
+      }
     }
+
     setFloors(options)
   }
 
   const putRooms = (buildingId, floor) => {
     const building = listBuilding.filter(item => item.building._id === buildingId)
-    const listFloors = building[0].listRoomByFloor.filter(item => item.floorNumber == floor)
-    const listRooms = listFloors[0].listRooms
-    console.log(listRooms);
     const options = []
-    listRooms.forEach((room, index) => {
-      options.push(<option value={room._id} key={index}>{room.roomName} {room.roomInfo}</option>);
-    })
+    if (building.length > 0) {
+      const listFloors = building[0].listRoomByFloor.filter(item => item.floorNumber == floor)
+      const listRooms = listFloors[0].listRooms
+      listRooms.forEach((room, index) => {
+        options.push(<option value={room._id} key={index}>{room.roomName} {room.roomInfo}</option>);
+      })
+    }
     setRooms(options)
   }
 
@@ -141,7 +148,13 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     setBuildingId(meterData.buildingId ? meterData.buildingId : "")
     setFloor(meterData.floor ? meterData.floor : 0)
     setRoomId(meterData.roomId ? meterData.roomId : "")
-  }, [listBuilding,meterData])
+    if (buildingId != "") {
+      putFloors(buildingId)
+    }
+    if (floor != 0) {
+      putRooms(buildingId, floor)
+    }
+  }, [listBuilding, meterData])
 
   useEffect(() => {
     setFloors([])

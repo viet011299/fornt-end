@@ -29,7 +29,7 @@ function Header() {
   const history = useHistory()
   const handleLogout = () => {
     dispatch(logoutSuccess())
-    sessionStorage.clear()
+    localStorage.clear()
     history.push("/login")
   }
   return (

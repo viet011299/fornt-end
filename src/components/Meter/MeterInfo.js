@@ -7,9 +7,10 @@ import { ArrowBack } from '@material-ui/icons'
 import io from "socket.io-client"
 import meterApi from '../../api/meterApi';
 import moment from "moment"
-
+import { Box } from '@material-ui/core';
+import { Statistic, Card, Row, Col } from 'antd';
 const URL = "http://localhost:6969";
-const formatDate = (date)=>{
+const formatDate = (date) => {
   const format = "HH:mm:ss DD-MM-YYYY"
   return moment(date).format(format);
 }
@@ -208,18 +209,56 @@ function MeterInfo(props) {
     setWData(w)
     setKWhData(kWh)
   }
+  const totalP = () => {
+    let result = 0
+    wData.forEach(w => {
+      result += w.y
+    })
+    return result
+  }
+
+
   return (
-    <div
-      style={{
-        backgroundColor: "white",
-      }}
-    >
+    <StyledInfo>
       <StyledLink
         to="/meters"
       >
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
       <StyledHeader>Meter {meter.meterId || ""}</StyledHeader>
+      <Row gutter={18}>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title="P"
+              value={wData.length>0? wData[wData.length-1].y : ""}
+              precision={2}
+              valueStyle={{ color: '#3f8600' }}
+              suffix="W"
+            />
+          </Card> </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title="Total P in day"
+              value={totalP()}
+              precision={2}
+              valueStyle={{ color: '#3f8600' }}
+              suffix="W"
+            />
+          </Card> </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic
+              title="Energy"
+              value={kWhData.length>0? kWhData[kWhData.length-1].y : ""}
+              precision={2}
+              valueStyle={{ color: '#3f8600' }}
+              suffix="kWh"
+            />
+          </Card>
+        </Col>
+      </Row>
       <StyledSubHeader>Volt</StyledSubHeader>
       <ReactApexChart
         options={optionsU}
@@ -227,7 +266,7 @@ function MeterInfo(props) {
         type="area"
         height={350}
       />
-       <StyledSubHeader>Ampe</StyledSubHeader>
+      <StyledSubHeader>Ampe</StyledSubHeader>
       <ReactApexChart
         options={optionsI}
         series={seriesI}
@@ -247,13 +286,13 @@ function MeterInfo(props) {
         type="area"
         height={350}
       />
-        <ReactApexChart
+      <ReactApexChart
         options={options}
         series={series}
         type="area"
         height={350}
       />
-    </div>
+    </StyledInfo >
   );
 }
 const StyledLink = styled(Link)`
@@ -268,5 +307,11 @@ const StyledHeader = styled.h1`
 const StyledSubHeader = styled.h3`
   text-align: center;
   color:#0085FF;
+`
+const StyledInfo = styled.div`
+  padding-top:10px;
+`
+const StyledListInfo = styled.div`
+
 `
 export default MeterInfo;

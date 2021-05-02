@@ -8,7 +8,7 @@ function ListCard({ listRooms }) {
       <StyledList>
         {listRooms.map(
           (meter, index) =>
-            <MeterCard key={index} meter={meter}/>
+            <MeterCard key={index} meter={meter} index={index}/>
         )}
       </StyledList>
 

@@ -58,7 +58,7 @@ function Detail(props) {
   }, [])
 
   const handleSave = async function () {
-    setIsLoading(true)
+    setIsLoading(false)
     try {
       const response = await buildingApi.create(
         {
@@ -167,6 +167,19 @@ function Detail(props) {
           value={buildingInfo}
           onChange={(e) => handleValue(e, setBuildingInfo)}
         />
+        {/* <StyledTextField
+          required
+          error
+          id="outlined-error-helper-text"
+          label="Error"
+          helperText="Incorrect entry."
+          variant="outlined"
+        /> */}
+
+        {isAdd ?
+          <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
+          <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
+        }
         {
           isLoading &&
           <CircularProgress style={{ marginBottom: "10px" }} />
@@ -177,11 +190,6 @@ function Detail(props) {
             {error}
           </StyledError>
         )}
-        {isAdd ?
-          <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
-          <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
-        }
-
       </StyledGroupTextField>
 
 

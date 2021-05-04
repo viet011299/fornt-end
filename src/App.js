@@ -89,6 +89,7 @@ function App() {
 const StyledContainer = styled(Container)`
   margin-top:70px;
   margin-bottom:120px;
-  // min-height:900px;
+  min-height:900px;
+  padding:10px;
 `
 export default App;

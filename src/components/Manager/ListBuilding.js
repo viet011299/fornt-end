@@ -57,6 +57,8 @@ function ListBuilding(props) {
   const columns = [
     {
       title: "#",
+      key: 'index',
+      render : (text, record, index) => index +1,
     },
     {
       title: "Building Name",
@@ -138,10 +140,11 @@ function ListBuilding(props) {
   console.log(widthSearch);
   return (
     <>
+    <StyledTextHeader>Manager Building</StyledTextHeader>
       <StyledHeader>
-        <StyledTextHeader>Manager Building</StyledTextHeader>
+        
         <Autocomplete
-            style={{ width: widthSearch }}
+            style={{ width: widthSearch}}
             id="free-solo-demo"
             value={value}
             freeSolo
@@ -183,7 +186,8 @@ function ListBuilding(props) {
       </StyledHeader>
 
       <StyledTable component={Paper}>
-        <Table columns={columns} dataSource={dataTable} onChange={onChange}></Table>
+        <Table columns={columns} dataSource={dataTable} onChange={onChange}>  
+        </Table>
       </StyledTable>
     </>
   );
@@ -200,6 +204,7 @@ const TableTextHead = styled(TableCell)`
 const StyledHeader = styled.div`
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
 `;
 const StyledButtonCreate = styled(Button)`
   height: 40px;
@@ -207,9 +212,11 @@ const StyledButtonCreate = styled(Button)`
 `;
 const StyledTextHeader = styled.h1`
   flex: 1;
+  // margin:none;
 `;
 const StyledLink = styled(Link)`
   text-decoration: none;
+  color: #FFF;
 `;
 const StyledLinkView = styled(Link)`
   color: black;

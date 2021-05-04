@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, TextField } from '@material-ui/core';
+import { Button, CircularProgress, TextField } from '@material-ui/core';
 import styled from 'styled-components';
 import { ArrowBack } from '@material-ui/icons';
 import { Link, useHistory } from 'react-router-dom';
@@ -16,6 +16,8 @@ function Detail(props) {
   const [buildingInfo, setBuildingInfo] = useState("")
   const [error, setError] = useState("")
   const [isError, setIsError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
   const history = useHistory()
 
   const setErrorDefault = () => {
@@ -34,8 +36,21 @@ function Detail(props) {
           setBuildingInfo(item.buildingInfo ? item.buildingInfo : "")
           console.log('Fetch building successfully: ', response);
         } catch (error) {
-          
-          console.log('Failed to fetch building list: ', error);
+
+          if (error.response) {
+            // Request made and server responded
+            const errorMessage = error.response.data.message
+            console.log(error.response.data);
+            setIsLoading(false)
+            setIsError(true)
+            setError(errorMessage)
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+            setIsLoading(false)
+            setIsError(true)
+            setError(error.message)
+          }
         }
       };
       fetchData();
@@ -43,6 +58,7 @@ function Detail(props) {
   }, [])
 
   const handleSave = async function () {
+    setIsLoading(true)
     try {
       const response = await buildingApi.create(
         {
@@ -53,11 +69,25 @@ function Detail(props) {
       )
       history.push("/manager")
     } catch (error) {
-      
-      console.log(error);
+
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   }
   const handleEdit = async function () {
+    setIsLoading(true)
     try {
       const response = await buildingApi.edit(
         id,
@@ -69,7 +99,20 @@ function Detail(props) {
       )
       history.push("/manager")
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   }
 
@@ -124,19 +167,21 @@ function Detail(props) {
           value={buildingInfo}
           onChange={(e) => handleValue(e, setBuildingInfo)}
         />
-        {/* <StyledTextField
-          required
-          error
-          id="outlined-error-helper-text"
-          label="Error"
-          helperText="Incorrect entry."
-          variant="outlined"
-        /> */}
+        {
+          isLoading &&
+          <CircularProgress style={{ marginBottom: "10px" }} />
+        }
 
+        {isError && (
+          <StyledError>
+            {error}
+          </StyledError>
+        )}
         {isAdd ?
           <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
           <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
         }
+
       </StyledGroupTextField>
 
 
@@ -167,6 +212,11 @@ const StyledGroupTextField = styled.div`
 `
 const StyledButton = styled(Button)`
   width: 25%;
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
 `
 export default Detail
 

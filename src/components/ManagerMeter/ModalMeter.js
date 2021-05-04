@@ -48,7 +48,8 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
   };
   const handleClose = () => {
     setOpen(false);
-    setAllDefault();
+    setErrorDefault();
+    // setAllDefault();
   };
 
   const setAllDefault = () => {
@@ -60,6 +61,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     setRooms([])
     setErrorDefault()
   }
+
   const setErrorDefault = () => {
     setError("")
     setIsError(false)
@@ -80,6 +82,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
 
   const handleEdit = async function () {
     setIsLoading(true)
+    setErrorDefault()
     try {
       const response = await meterApi.edit(
         meterData._id,
@@ -91,6 +94,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
       await fetchData()
       setIsLoading(false)
       handleClose()
+      setErrorDefault()
     } catch (error) {
       if (error.response) {
         // Request made and server responded
@@ -154,7 +158,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     if (floor != 0) {
       putRooms(buildingId, floor)
     }
-  }, [listBuilding, meterData])
+  }, [listBuilding, meterData, open])
 
   useEffect(() => {
     setFloors([])

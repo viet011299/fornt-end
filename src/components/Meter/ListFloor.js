@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import buildingApi from '../../api/buildingApi';
 import styled from 'styled-components';
-
+import io from "socket.io-client"
 import ListCard from './ListCard';
+import { SocketContext } from '../../context/socket';
 
-function ListFloor({ buildingData }) {
+function ListFloor({ buildingData,dataMeter }) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [floorData, setFloorData] = useState([])
@@ -23,6 +24,7 @@ function ListFloor({ buildingData }) {
     };
     fetchData()
     setLoading(false)
+
   }, []);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ function ListFloor({ buildingData }) {
               <TextFloor>
                 Floor {floor.floorNumber}
               </TextFloor>
-              <ListCard listRooms={floor.listRooms} />
+              <ListCard listRooms={floor.listRooms} dataMeter={dataMeter} />
             </StyledFloor>
           )
         )

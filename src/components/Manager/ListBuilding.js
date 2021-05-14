@@ -17,10 +17,12 @@ import './buildingStyled/listBuilding.css'
 
 
 function ListBuilding(props) {
+  // const [loading,setLoading] = useState(false)
   const [data, setData] = useState([]);
   const [dataTable, setDataTable] = useState([]);
-  const [value, setValue] = React.useState();
+  const [value, setValue] = useState("")
   const [widthSearch, setWidthSearch] = useState(120);
+
   let { url } = useRouteMatch();
   const fetchData = async () => {
     try {
@@ -57,11 +59,14 @@ function ListBuilding(props) {
   const columns = [
     {
       title: "#",
+      key: 'index',
+      render: (text, record, index) => index + 1,
     },
     {
       title: "Building Name",
       dataIndex: "buildingName",
       align: "center",
+      sorter: (a, b) => a.buildingName.localeCompare(b.buildingName),
     },
     {
       title: "Number Floor",
@@ -73,7 +78,7 @@ function ListBuilding(props) {
       title: "Building Info",
       dataIndex: "buildingInfo",
       align: "center",
-      sorter: (a, b) => a.buildingInfo.length - b.buildingInfo.length,
+      sorter: (a, b) => a.buildingInfo.localeCompare(b.buildingInfo),
     },
     {
       title: "Action",
@@ -113,7 +118,7 @@ function ListBuilding(props) {
   function onChange(pagination, filters, sorter, extra) {
     console.log("params", pagination, filters, sorter, extra);
   }
-  
+
   const onSearch = (e) => {
     if (e !== null && typeof e.buildingName === "string") {
       const inputSearch = e;
@@ -125,7 +130,7 @@ function ListBuilding(props) {
       });
       setDataTable(dataFilter)
     }
-    else{
+    else {
       setDataTable(data)
     }
   };
@@ -135,47 +140,47 @@ function ListBuilding(props) {
   const onBlurSearchInput = () => {
     setWidthSearch(120)
   }
-  console.log(widthSearch);
   return (
     <>
+      <StyledTextHeader>Manager Building</StyledTextHeader>
       <StyledHeader>
-        <StyledTextHeader>Manager Building</StyledTextHeader>
+
         <Autocomplete
-            style={{ width: widthSearch }}
-            id="free-solo-demo"
-            value={value}
-            freeSolo
-            onBlur={onBlurSearchInput}
-            onFocus={onFocusSearchInput}
-            onChange={(event, newValue) => {
-              onSearch(newValue);
-            }}
-            onInputChange={(event, newInputValue) => {
-              onSearch(newInputValue);
-            }}
-            options={data}
-            getOptionLabel={(option) => option?.buildingName}
-            renderOption={(option, { selected }) => (
-              <React.Fragment>
-                {option?.buildingName}
-              </React.Fragment>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search..."
-                variant="outlined"
-                id="input-with-icon-grid"
-                margin="normal"
-                size="small"
-                onChange={onSearch}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: <SearchIcon />
-                }}
-              />
-            )}
-          />
+          style={{ width: widthSearch }}
+          id="free-solo-demo"
+          value={value}
+          freeSolo
+          onBlur={onBlurSearchInput}
+          onFocus={onFocusSearchInput}
+          onChange={(event, newValue) => {
+            onSearch(newValue);
+          }}
+          onInputChange={(event, newInputValue) => {
+            onSearch(newInputValue);
+          }}
+          options={data}
+          getOptionLabel={(option) => option?.buildingName}
+          renderOption={(option, { selected }) => (
+            <React.Fragment>
+              {option?.buildingName}
+            </React.Fragment>
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search..."
+              variant="outlined"
+              id="input-with-icon-grid"
+              margin="normal"
+              size="small"
+              onChange={onSearch}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: <SearchIcon />
+              }}
+            />
+          )}
+        />
         <StyledButtonCreate variant="contained" color="primary">
           {" "}
           <StyledLink to={`${url}/create`}>Create</StyledLink>{" "}
@@ -183,7 +188,9 @@ function ListBuilding(props) {
       </StyledHeader>
 
       <StyledTable component={Paper}>
-        <Table columns={columns} dataSource={dataTable} onChange={onChange}></Table>
+        <Table key="table" columns={columns} dataSource={dataTable} onChange={onChange}  pagination={{pageSize:5}} >
+          
+        </Table>
       </StyledTable>
     </>
   );
@@ -200,16 +207,18 @@ const TableTextHead = styled(TableCell)`
 const StyledHeader = styled.div`
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
 `;
 const StyledButtonCreate = styled(Button)`
   height: 40px;
   background-color: green !important;
 `;
 const StyledTextHeader = styled.h1`
-  flex: 1;
+text-align: center;
 `;
 const StyledLink = styled(Link)`
   text-decoration: none;
+  color: #FFF;
 `;
 const StyledLinkView = styled(Link)`
   color: black;

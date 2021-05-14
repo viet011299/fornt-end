@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MeterCard({ meter, index }) {
+function MeterCard({ room, meterData, index }) {
   let history = useHistory();
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
@@ -53,78 +53,52 @@ function MeterCard({ meter, index }) {
   };
 
   const handleShow = () => {
-    history.push(`/meters/${meter.meterId}`);
+    history.push(`/meters/${room.meterId}`);
   };
 
   return (
-    <StyledCard className={classes.root} index={index}>
+    <StyledCard className={classes.root}>
       <StyledCardHeader
         avatar={
           <HomeIcon />
         }
-        title={`Room ${meter.roomName}`}
-        subheader={meter.roomInfo}
+        title={`Room ${room.roomName}`}
+        subheader={room.roomInfo}
         co
       />
       <CardContent>
-        {index == 1 &&
+        {meterData ?
           <>
             <Typography variant="h6">
-              P: 45 W
+              P: {meterData.w} W
         </Typography>
             <Typography variant="h6">
-              Total P: 2800.50 W
+              Total P: {meterData.totalW} W
         </Typography>
-        
-        <Typography variant="h6">
-        Total Energy: 2.7 kWh
+
+            <Typography variant="h6">
+              Total Energy: {meterData.kWh} kWh
         </Typography>
-          </>
-        }
-        {index == 2 &&
-          <>
-            <Typography variant="h6">
-              P: 10000 W
-            </Typography>
-            <Typography variant="h6">
-              Total P: 1000000 W
-            </Typography>
-            <Typography variant="h6">
-              Total Energy: 2 kWh
-            </Typography>
-          </>
-        }
-        {index == 0 &&
+          </> :
           <>
             <Typography variant="h6">
               P: - W
-        </Typography>
+            </Typography>
             <Typography variant="h6">
               Total P: - W
-        </Typography>
+            </Typography>
             <Typography variant="h6">
-            Total Energy: - kWh
-        </Typography>
+              Total Energy: - kWh
+              </Typography>
           </>
         }
-        {index == 3 &&
-          <>
-            <Typography variant="h6">
-              P: 0 W
-        </Typography>
-            <Typography variant="h6">
-              Total P: 11100 W
-        </Typography>
-            <Typography variant="h6">
-            Total Energy: 3.68 kWh
-        </Typography>
-          </>
-        }
+
+
 
       </CardContent>
       <CardActions disableSpacing>
         {
-          !meter.meterId &&
+          !room.meterId &&
           <Tooltip title="View">
             <IconButton aria-label="add to favorites" onClick={handleShow}>
               <VisibilityIcon />
@@ -137,7 +111,7 @@ function MeterCard({ meter, index }) {
 }
 
 MeterCard.propTypes = {
-  meter: PropTypes.object
+  room: PropTypes.object
 }
 const StyledCard = styled(Card)`
   margin: 10px 20px;

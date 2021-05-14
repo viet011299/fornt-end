@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 // import PropTypes from 'prop-types';
 import ReactApexChart from "react-apexcharts";
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowBack } from '@material-ui/icons'
-import io from "socket.io-client"
 import meterApi from '../../api/meterApi';
 import moment from "moment"
-import { Box } from '@material-ui/core';
 import { Statistic, Card, Row, Col } from 'antd';
-const URL = "http://localhost:6969";
+import { SocketContext } from '../../context/socket';
+
+
 const formatDate = (date) => {
   const format = "HH:mm:ss DD-MM-YYYY"
   return moment(date).format(format);
 }
 
 function MeterInfo(props) {
+  const socket = useContext(SocketContext);
   const meterId = props.match.params.id;
   const [meter, setMeter] = useState({})
   const [listData, setListData] = useState([])
-  const [uData, setUData] = useState([])
-  const [iData, setIData] = useState([])
-  const [wData, setWData] = useState([])
-  const [kWhData, setKWhData] = useState([])
+  const [data, setData] = useState({
+    u: [],
+    i: [],
+    w: [],
+    kWh: []
+  })
   const series = [
     {
       name: "U",
@@ -40,15 +43,20 @@ function MeterInfo(props) {
   const seriesU = [
     {
       name: "V",
-      data: uData
+      type: 'line',
+      data: data.u
     }
   ]
   const optionsU = {
-    dataLabels: {
-      enabled: false,
+    title: {
+      text: 'Volt',
+      align: 'center'
     },
     stroke: {
-      curve: "smooth",
+      curve: 'smooth'
+    },
+    dataLabels: {
+      enabled: false,
     },
     xaxis: {
       type: "date",
@@ -68,10 +76,14 @@ function MeterInfo(props) {
   const seriesI = [
     {
       name: "A",
-      data: iData
+      data: data.i
     }
   ]
   const optionsI = {
+    title: {
+      text: 'Ampe',
+      align: 'center'
+    },
     dataLabels: {
       enabled: false,
     },
@@ -91,10 +103,14 @@ function MeterInfo(props) {
   const seriesW = [
     {
       name: "W",
-      data: wData
+      data: data.w
     }
   ]
   const optionsW = {
+    title: {
+      text: 'P',
+      align: 'center'
+    },
     dataLabels: {
       enabled: false,
     },
@@ -119,10 +135,14 @@ function MeterInfo(props) {
   const serieskWh = [
     {
       name: "kWh",
-      data: kWhData
+      data: data.kWh
     }
   ]
   const optionskWh = {
+    title: {
+      text: 'Energy',
+      align: 'center'
+    },
     dataLabels: {
       enabled: false,
     },
@@ -145,11 +165,36 @@ function MeterInfo(props) {
   };
 
   const options = {
+    chart: {
+      id: 'realtime',
+      height: 350,
+      type: 'line',
+      animations: {
+        enabled: true,
+        easing: 'linear',
+        dynamicAnimation: {
+          speed: 1000
+        }
+      },
+      toolbar: {
+        show: false
+      },
+      zoom: {
+        enabled: false
+      }
+    },
     dataLabels: {
-      enabled: false,
+      enabled: false
     },
     stroke: {
-      curve: "smooth",
+      curve: 'smooth'
+    },
+    title: {
+      text: 'Dynamic Updating Chart',
+      align: 'left'
+    },
+    markers: {
+      size: 0
     },
     xaxis: {
       type: "datetime",
@@ -165,12 +210,41 @@ function MeterInfo(props) {
         "5/7/20",
       ],
     },
-    tooltip: {
-      x: {
-        format: "dd/MM/yy",
-      },
+    yaxis: {
+      max: 100
     },
-  };
+    legend: {
+      show: false
+    },
+  }
+
+  // const options = {
+  //   dataLabels: {
+  //     enabled: false,
+  //   },
+  //   stroke: {
+  //     curve: "smooth",
+  //   },
+  //   xaxis: {
+  //     type: "datetime",
+  //     categories: [
+  //       "1/22/20",
+  //       "2/1/20",
+  //       "2/15/20",
+  //       "3/1/20",
+  //       "3/15/20",
+  //       "4/1/20",
+  //       "4/15/20",
+  //       "5/1/20",
+  //       "5/7/20",
+  //     ],
+  //   },
+  //   tooltip: {
+  //     x: {
+  //       format: "dd/MM/yy",
+  //     },
+  //   },
+  // };
   const fetchData = async () => {
     try {
       const response = await meterApi.read("607c966ce5b60905003ac918")
@@ -184,38 +258,46 @@ function MeterInfo(props) {
   }
   useEffect(() => {
     fetchData();
-    // socket.on('updateData',(data)=>{
-    //   setMeter([...meter,data])
-    //   console.log(data);
-    // }) 
+
+    // const socket = socketIOClient(ENDPOINT);
+    // socket.on("FromAPI", data => {
+    //   console.log(data)
+    // });
   }, [])
   useEffect(() => {
-    setData()
+    socket.on('new-data',(data)=>{
+      const listDataClone = listData
+      listDataClone.push(data)
+      setListData(listDataClone)
+    }) 
+    setDataMeter()
+
   }, [listData])
 
-  const setData = () => {
+  const setDataMeter = () => {
     const u = []
     const i = []
     const w = []
     const kWh = []
-    listData.forEach(data => {
+    const fillData = listData.slice(-10)
+    console.log(listData);
+    fillData.forEach(data => {
       u.push({ x: formatDate(data.time), y: data.v })
       i.push({ x: formatDate(data.time), y: data.a })
       w.push({ x: formatDate(data.time), y: data.w })
       kWh.push({ x: formatDate(data.time), y: data.kWh })
     })
-    setUData(u)
-    setIData(i)
-    setWData(w)
-    setKWhData(kWh)
+    const data = { i, u, w, kWh }
+    setData(data)
   }
   const totalP = () => {
     let result = 0
-    wData.forEach(w => {
+    data.w.forEach(w => {
       result += w.y
     })
     return result
   }
+
 
 
   return (
@@ -231,7 +313,7 @@ function MeterInfo(props) {
           <Card>
             <Statistic
               title="P"
-              value={wData.length>0? wData[wData.length-1].y : ""}
+              value={data.w.length > 0 ? data.w[data.w.length - 1].y : ""}
               precision={2}
               valueStyle={{ color: '#3f8600' }}
               suffix="W"
@@ -251,7 +333,7 @@ function MeterInfo(props) {
           <Card>
             <Statistic
               title="Energy"
-              value={kWhData.length>0? kWhData[kWhData.length-1].y : ""}
+              value={data.kWh.length > 0 ? data.kWh[data.kWh.length - 1].y : ""}
               precision={2}
               valueStyle={{ color: '#3f8600' }}
               suffix="kWh"
@@ -259,37 +341,40 @@ function MeterInfo(props) {
           </Card>
         </Col>
       </Row>
-      <StyledSubHeader>Volt</StyledSubHeader>
+
       <ReactApexChart
+        type="line"
         options={optionsU}
         series={seriesU}
-        type="area"
-        height={350}
-      />
-      <StyledSubHeader>Ampe</StyledSubHeader>
-      <ReactApexChart
-        options={optionsI}
-        series={seriesI}
-        type="area"
-        height={350}
-      />
-      <ReactApexChart
-        options={optionsW}
-        series={seriesW}
-        type="area"
         height={350}
       />
 
       <ReactApexChart
+        type="line"
+        options={optionsI}
+        series={seriesI}
+
+        height={350}
+      />
+      <ReactApexChart
+        type="line"
+        options={optionsW}
+        series={seriesW}
+
+        height={350}
+      />
+
+      <ReactApexChart
+        type="line"
         options={optionskWh}
         series={serieskWh}
-        type="area"
+
         height={350}
       />
       <ReactApexChart
         options={options}
         series={series}
-        type="area"
+
         height={350}
       />
     </StyledInfo >

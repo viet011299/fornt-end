@@ -2,7 +2,6 @@ import axiosClient from "./axiosClient";
 const url = '/meter';
 class MeterApi {
     getAll = (params) => {
-
         return axiosClient.get(url, { params });
     };
     create = (body) => {
@@ -22,6 +21,9 @@ class MeterApi {
 
     getBuildings = () => {
         return axiosClient.get(`/buildings${url} `);
+    }
+    getAllMeterRom = () => {
+        return axiosClient.get(`/get-all${url} `);
     }
 }
 const meterApi = new MeterApi();

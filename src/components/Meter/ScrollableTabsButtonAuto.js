@@ -94,7 +94,8 @@ export default function ScrollableTabsButtonAuto() {
   }, [dataMeterRef.current, listMeter, update])
 
   const fillByMeter = (listMeter, listMeterData) => {
-    const result = listMeter.map((meter) => {
+    const result = {}
+    listMeter.forEach((meter) => {
       const dataMeter = {
         meter,
         w: 0,
@@ -103,11 +104,8 @@ export default function ScrollableTabsButtonAuto() {
         data: []
       }
       let totalW = 0
-      let  count= 0
-      listMeterData.forEach((data,index) => {
-      
+      listMeterData.forEach((data, index) => {
         if (meter.meterId == data.meterId) {
-          count++
           dataMeter.data.push(data)
           totalW += data.w
         }
@@ -117,13 +115,11 @@ export default function ScrollableTabsButtonAuto() {
         dataMeter.kWh = dataMeter.data[dataMeter.data.length - 1].kWh
         dataMeter.w = dataMeter.data[dataMeter.data.length - 1].w
       }
-      console.log(count,dataMeter.data);
-      return dataMeter
+      result[`${meter.roomId}`] = dataMeter
     })
-    console.log(result);
     return result
   }
-  
+
   return (
     <div className={classes.root}>
       <AppBar position="static" color="default">

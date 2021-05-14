@@ -5,9 +5,9 @@ import styled from 'styled-components';
 function ListCard({ listRooms, dataMeter }) {
     console.log(dataMeter);
   const getDataMeter = (room, dataMeter, index) => {
-    const fill = dataMeter.filter(data => data.meter.roomId === room._id)
-    if (fill.length > 0) {
-      return <MeterCard key={index} room={room} index={index} meterData={fill[0]} />
+    const dataRoom=  dataMeter[`${room._id}`]
+    if (dataRoom) {
+      return <MeterCard key={index} room={room} index={index} meterData={dataRoom}/>
     }
     return <MeterCard key={index} room={room} index={index} />
   }

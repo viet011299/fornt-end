@@ -15,8 +15,8 @@ class MeterApi {
         return axiosClient.delete(`${url}/${id}`, body);
     }
 
-    read = (id) => {
-        return axiosClient.get(`${url}/${id}`);
+    read = (meterId) => {
+        return axiosClient.get(`${url}/${meterId}`);
     }
 
     getBuildings = () => {

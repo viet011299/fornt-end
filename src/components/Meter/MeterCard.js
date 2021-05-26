@@ -46,14 +46,8 @@ const useStyles = makeStyles((theme) => ({
 function MeterCard({ room, meterData, index }) {
   let history = useHistory();
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   const handleShow = () => {
-    history.push(`/meters/${room.meterId}`);
+    history.push(`/meters/${meterData.meter.meterId}`);
   };
 
   return (
@@ -98,7 +92,7 @@ function MeterCard({ room, meterData, index }) {
       </CardContent>
       <CardActions disableSpacing>
         {
-          !room.meterId &&
+         meterData &&
           <Tooltip title="View">
             <IconButton aria-label="add to favorites" onClick={handleShow}>
               <VisibilityIcon />

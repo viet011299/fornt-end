@@ -105,7 +105,7 @@ function ManagerMeter() {
                 </TableCell>
                 <TableCell align="center">
                   <Tooltip title="View">
-                    <StyledLinkView to={`${url}/${row._id}/room`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
+                    <StyledLinkView to={`${url}/meters/${row.meterId}`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
                   </Tooltip>
                   <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
                 </TableCell>

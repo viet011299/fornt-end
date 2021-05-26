@@ -7,12 +7,6 @@ function User() {
     return (
         <>
         </>
-        // <Switch>
-        //     <Route path={path} >
-        //         <Route exact path={path} component={ListMeter} />
-        //         <Route path={`${path}/:id`} component={MeterInfo} />
-        //     </Route>
-        // </Switch>
     )
 }
 

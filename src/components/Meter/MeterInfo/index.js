@@ -15,8 +15,10 @@ import { SocketContext } from '../../../context/socket';
 import GaugeChart from 'react-gauge-chart'
 import ApexCharts from 'apexcharts';
 import Info from './Info';
-import { Button, CircularProgress } from '@material-ui/core';
-import MaterialUIPickers from './dataPicker';
+import { CircularProgress } from '@material-ui/core';
+import "react-datepicker/dist/react-datepicker.css";
+import DatePickerData from './DatePicker';
+
 
 const formatDate = (date) => {
   const format = "HH:mm:ss DD-MM-YYYY"
@@ -30,12 +32,13 @@ function MeterInfo(props) {
   const [listData, setListData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const listDataRef = useRef([])
-  const [selectedDate, setSelectedDate] = useState(new Date('2014-08-18T21:11:54'));
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
-
+  const [selectionRange, setSelectionRange] = useState(
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    }
+  )
   const [options, setOptions] = useState(
     {
       chart: {
@@ -87,6 +90,7 @@ function MeterInfo(props) {
       }
     }
   )
+
   const [data, setData] = useState({
     u: [],
     i: [],
@@ -95,7 +99,8 @@ function MeterInfo(props) {
   })
   const fetchData = async () => {
     try {
-      const response = await meterApi.read(meterId)
+      const query = { startDate: selectionRange.startDate, endDate: selectionRange.endDate }
+      const response = await meterApi.read(meterId, query)
       setIsLoading(true)
       setMeter(response.data.item)
       setListData(response.data.listData)
@@ -122,6 +127,12 @@ function MeterInfo(props) {
   useEffect(() => {
     setDataMeter()
   }, [listData])
+  useEffect(() => {
+    async function getApi() {
+      await fetchData()
+    }
+    getApi()
+  }, [selectionRange])
 
   const setDataMeter = () => {
     const u = []
@@ -153,6 +164,9 @@ function MeterInfo(props) {
         <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
       <StyledHeader>Meter {meter.meterId || ""}</StyledHeader>
+      <StyledDatePicker>
+        <DatePickerData selectionRange={selectionRange} setSelectionRange={setSelectionRange} />
+      </StyledDatePicker>
       {isLoading ?
         <>
           <StyledLoading>
@@ -162,9 +176,8 @@ function MeterInfo(props) {
         </>
         :
         <>
-          <Button>1 month</Button>
-          <MaterialUIPickers />
-          <Info data={data} options={options} />
+
+          {listData.length > 0 ? <Info data={data} options={options} /> : <StyledSubHeader>No Data</StyledSubHeader>}
         </>
       }
 
@@ -197,5 +210,13 @@ align-items: center;
 `
 const StyledTextLoading = styled.h2`
 
+`
+const StyledDatePicker = styled.div`
+margin: 20px 0;
+display: flex;
+justify-items: center;
+>div{
+  margin: auto
+}
 `
 export default MeterInfo;

@@ -1,5 +1,6 @@
 import axiosClient from "./axiosClient";
 const url = '/meter';
+const queryString = require('query-string');
 class MeterApi {
     getAll = (params) => {
         return axiosClient.get(url, { params });
@@ -15,8 +16,9 @@ class MeterApi {
         return axiosClient.delete(`${url}/${id}`, body);
     }
 
-    read = (meterId) => {
-        return axiosClient.get(`${url}/${meterId}`);
+    read = (meterId,query) => {
+        
+        return axiosClient.get(`${url}/${meterId}?${queryString.stringify(query)}`);
     }
 
     getBuildings = () => {

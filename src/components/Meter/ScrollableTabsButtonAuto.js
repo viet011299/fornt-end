@@ -11,7 +11,7 @@ import buildingApi from '../../api/buildingApi';
 import ListFloor from './ListFloor';
 import meterApi from '../../api/meterApi';
 import { SocketContext } from '../../context/socket';
-
+import { isEqualsDate, formatDate,MinuteDaysThanNow } from 'helper/helper'
 
 TabPanel.propTypes = {
   children: PropTypes.node,
@@ -98,22 +98,47 @@ export default function ScrollableTabsButtonAuto() {
     listMeter.forEach((meter) => {
       const dataMeter = {
         meter,
+        a: 0,
+        v: 0,
         w: 0,
         kWh: 0,
-        totalW: 0,
-        data: []
+        totalkWh: 0,
+        data: [],
+        status:"normal",
+        timeCurrent: new Date() 
       }
-      let totalW = 0
+
+      let useDay = []
+      let totalkWh = 0
       listMeterData.forEach((data, index) => {
         if (meter.meterId == data.meterId) {
           dataMeter.data.push(data)
-          totalW += data.w
+          if (isEqualsDate(data.time, new Date())) {
+            useDay.push(data)
+          }
         }
       })
-      dataMeter.totalW = parseFloat(totalW.toFixed(2))
+
+      if(useDay.length>0){
+        const length = useDay.length
+        totalkWh= useDay[length- 1].kWh - useDay[0].kWh
+      }
+      dataMeter.totalkWh = parseFloat(totalkWh.toFixed(2))
+
       if (dataMeter.data[dataMeter.data.length - 1]) {
-        dataMeter.kWh = dataMeter.data[dataMeter.data.length - 1].kWh
-        dataMeter.w = dataMeter.data[dataMeter.data.length - 1].w
+          dataMeter.kWh = dataMeter.data[dataMeter.data.length - 1].kWh
+          dataMeter.w = dataMeter.data[dataMeter.data.length - 1].w
+          dataMeter.a = dataMeter.data[dataMeter.data.length - 1].a
+          dataMeter.v = dataMeter.data[dataMeter.data.length - 1].v
+          dataMeter.timeCurrent = dataMeter.data[dataMeter.data.length - 1].time
+          
+          if(MinuteDaysThanNow(dataMeter.data[dataMeter.data.length - 1].time,5)){
+            dataMeter.status="warning"
+          }else{
+            if(dataMeter.a>75 || dataMeter.v>242 || dataMeter.v<176){
+              dataMeter.status="danger"
+            }
+          }
       }
       result[`${meter.roomId}`] = dataMeter
     })

@@ -4,8 +4,14 @@ import { Statistic, Card, Row, Col } from 'antd';
 import { Button } from '@material-ui/core';
 import ReactApexChart from 'react-apexcharts';
 import styled from 'styled-components';
+import { isEqualsDate, formatDateForDay } from 'helper/helper'
 
-function Info({ data, options }) {
+const getTextTime = (range) => {
+  if (isEqualsDate(range.startDate, range.endDate)) return formatDateForDay(range.startDate)
+  return `${formatDateForDay(range.startDate)} - ${formatDateForDay(range.endDate)}`
+}
+function Info({ data, options, selectionRange, lastItem }) {
+  console.log(data);
   const seriesU = [
     {
       name: "V",
@@ -25,75 +31,85 @@ function Info({ data, options }) {
       data: data.w
     }
   ]
-  const totalP = () => {
+  const serieskWh = [
+    {
+      name: "kHw",
+      data: data.kWh
+    }
+  ]
+  const totalE = () => {
     let result = 0
-    data.w.forEach(w => {
-      result += w.y
-    })
+    if(data.kWh.length>0){
+      const start = data.kWh[0].y
+      const end = data.kWh[data.kWh.length - 1].y
+      result = end - start
+    }
+   
     return result
   }
 
   return (
     <div>
-      <Row gutter={18}>
+      <Row gutter={18} justify="center" style={{ margin: "10px 0" }}>
         <Col span={8}>
           <Card>
             <Statistic
-              title="P"
-              value={data.w.length > 0 ? data.w[data.w.length - 1].y : ""}
+              title={`Total Energy ${getTextTime(selectionRange)}`}
+              value={totalE()}
               precision={2}
               valueStyle={{ color: '#3f8600' }}
-              suffix="W"
-            />
-          </Card> </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Total P in day"
-              value={totalP()}
-              precision={2}
-              valueStyle={{ color: '#3f8600' }}
-              suffix="W"
+              suffix="kWh"
             />
           </Card> </Col>
         <Col span={8}>
           <Card>
             <Statistic
               title="Energy"
-              value={data.kWh.length > 0 ? data.kWh[data.kWh.length - 1].y : ""}
+              value={lastItem && lastItem.kWh}
               precision={2}
               valueStyle={{ color: '#3f8600' }}
               suffix="kWh"
             />
-          </Card>
-        </Col>
-      </Row>
-      {/* 
-      <Row gutter={18} justify="center  ">
-        <Col span={8} >
-          <Card style={{ background: "#282c34" }}>
-            <GaugeChart
-              nrOfLevels={15}
-              percent={0.56}
-              formatTextValue={value => value+' V'}
 
-            />
           </Card>
         </Col>
 
-        <Col span={8}>
-          <Card style={{ background: "#282c34" }}>
-            <GaugeChart
-              nrOfLevels={15}
-              percent={0.56}
-              needleColor="#345243"
-              formatTextValue={value => value+' A'}
-            />
-          </Card> </Col>
-
       </Row>
-      <ReactApexChart options={optionsG} series={seriesG} type="radialBar" /> */}
-    
+      {isEqualsDate(selectionRange.endDate, new Date()) && isEqualsDate(lastItem.createdAt, new Date()) &&
+        <Row gutter={18} justify="center" style={{ margin: "10px 0" }}>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="P"
+                value={data.w.length > 0 ? data.w[data.w.length - 1].y : ""}
+                precision={2}
+                valueStyle={{ color: '#3f8600' }}
+                suffix="W"
+              />
+            </Card> </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="I"
+                value={data.i.length > 0 ? data.i[data.i.length - 1].y : ""}
+                precision={2}
+                valueStyle={{  color: data.i[data.i.length - 1].y>75 ? "#D81418"  : "#3f8600"}}
+                suffix="A"
+              />
+            </Card> </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="U"
+                value={data.u.length > 0 ? data.u[data.u.length - 1].y : ""}
+                precision={2}
+                valueStyle={{ color: data.u[data.u.length - 1].y>242 ||data.u[data.u.length - 1].y<176 ? "#D81418"  : "#3f8600" }}
+                suffix="V"
+              />
+            </Card> </Col>
+        </Row>
+      }
+
       <StyledSubHeader>Volt</StyledSubHeader>
       <ReactApexChart
         type="line"
@@ -113,6 +129,13 @@ function Info({ data, options }) {
         type="line"
         options={options}
         series={seriesW}
+        height={500}
+      />
+      <StyledSubHeader>Energy</StyledSubHeader>
+      <ReactApexChart
+        type="line"
+        options={options}
+        series={serieskWh}
         height={500}
       />
     </div>

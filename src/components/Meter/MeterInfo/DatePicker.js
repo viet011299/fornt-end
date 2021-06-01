@@ -10,13 +10,10 @@ function DatePickerData({selectionRange,setSelectionRange}) {
     if (date.endDate > new Date()) {
       date.endDate = new Date()
     }
-    console.log(1);
     setSelectionRange(date)
-    
   }
   return (
     <DateRangePicker
-      
       onChange={item => handelDate(item.selection)}
       ranges={[selectionRange]}
       maxDate={new Date()}

@@ -4,12 +4,6 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowBack } from '@material-ui/icons'
 import moment from "moment"
-import DateFnsUtils from '@date-io/date-fns';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
 import meterApi from '../../../api/meterApi';
 import { SocketContext } from '../../../context/socket';
 import GaugeChart from 'react-gauge-chart'
@@ -18,20 +12,27 @@ import Info from './Info';
 import { CircularProgress } from '@material-ui/core';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePickerData from './DatePicker';
+import { Spin } from 'antd';
+import { isEqualsDate, formatDate } from 'helper/helper'
+import Warning from './Warning';
 
 
-const formatDate = (date) => {
-  const format = "HH:mm:ss DD-MM-YYYY"
-  return moment(date).format(format);
-}
 
 function MeterInfo(props) {
   const socket = useContext(SocketContext);
   const meterId = props.match.params.id;
   const [meter, setMeter] = useState({})
   const [listData, setListData] = useState([])
+
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+
+  const [lastItem, setLastItem] = useState(null)
   const listDataRef = useRef([])
+  const timeStartRef = useRef(new Date())
+  const timeEndRef = useRef(new Date())
+
   const [selectionRange, setSelectionRange] = useState(
     {
       startDate: new Date(),
@@ -73,7 +74,7 @@ function MeterInfo(props) {
       yaxis: {
       },
       xaxis: {
-        type: "category",
+        type: "time",
         labels: {
           show: true,
           formatter: function (value) {
@@ -81,12 +82,14 @@ function MeterInfo(props) {
           },
           rotate: -20,
         },
-        tickAmount: 10
+        tickAmount: 15
       },
       tooltip: {
+        shared: true,
         x: {
           format: "HH:mm:ss dd/MM/yy",
         },
+
       }
     }
   )
@@ -99,24 +102,42 @@ function MeterInfo(props) {
   })
   const fetchData = async () => {
     try {
-      const query = { startDate: selectionRange.startDate, endDate: selectionRange.endDate }
-      const response = await meterApi.read(meterId, query)
       setIsLoading(true)
+      const query = { startDate: selectionRange.startDate, endDate: selectionRange.endDate }
+      timeStartRef.current = selectionRange.startDate
+      timeEndRef.current = selectionRange.endDate
+      const response = await meterApi.read(meterId, query)
       setMeter(response.data.item)
       setListData(response.data.listData)
+      setLastItem(response.data.lastItem)
       listDataRef.current = response.data.listData
       console.log('Fetch building successfully: ', response);
       return response.data
     } catch (error) {
-      console.log('Failed to fetch building list: ', error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsError(true)
+        setError(error.message)
+      }
+      setIsLoading(false)
     }
   }
   useEffect(() => {
     async function getApi() {
-      await fetchData()
       socket.on(`new-data-${meterId}`, (data) => {
-        listDataRef.current = [...listDataRef.current, data]
-        setListData(listDataRef.current)
+        console.log(data);
+        if (isEqualsDate(timeEndRef.current, new Date())) {
+          listDataRef.current = [...listDataRef.current, data]
+          setListData(listDataRef.current)
+        }
+        setLastItem(data)
       })
     }
     getApi()
@@ -124,9 +145,13 @@ function MeterInfo(props) {
       socket.off(`new-data-${meterId}`)
     }
   }, [])
+
   useEffect(() => {
     setDataMeter()
   }, [listData])
+
+
+
   useEffect(() => {
     async function getApi() {
       await fetchData()
@@ -134,12 +159,17 @@ function MeterInfo(props) {
     getApi()
   }, [selectionRange])
 
+  const setErrorDefault = () => {
+    setError("")
+    setIsError(false)
+  }
+
   const setDataMeter = () => {
     const u = []
     const i = []
     const w = []
     const kWh = []
-    const fillData = listData.slice(-100)
+    const fillData = listData
     fillData.forEach(data => {
       u.push({ x: data.time, y: data.v })
       i.push({ x: data.time, y: data.a })
@@ -152,34 +182,41 @@ function MeterInfo(props) {
   }
 
 
-  const currentData = useMemo(() => {
-
-  }, [])
-
   return (
     <StyledInfo>
-      <StyledLink
-        to="/meters"
-      >
-        <ArrowBack style={{ marginRight: '10px' }} /> Back
+      {isError ? (
+        <StyledError>
+          {error}
+        </StyledError>
+      ) :
+        <>
+          <StyledLink
+            to="/meters"
+          >
+            <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
-      <StyledHeader>Meter {meter.meterId || ""}</StyledHeader>
-      <StyledDatePicker>
-        <DatePickerData selectionRange={selectionRange} setSelectionRange={setSelectionRange} />
-      </StyledDatePicker>
-      {isLoading ?
-        <>
-          <StyledLoading>
-            <CircularProgress style={{ marginBottom: "10px" }} />
-            <StyledTextLoading> Loading data</StyledTextLoading>
-          </StyledLoading>
+          <StyledHeader>Meter {meterId}</StyledHeader>
+          <TextLastItem> {lastItem && `Last update: ${formatDate(lastItem.createdAt)}`}</TextLastItem>
+          <Warning lastItem={lastItem} />
+          <StyledDatePicker>
+            <DatePickerData selectionRange={selectionRange} setSelectionRange={setSelectionRange} />
+          </StyledDatePicker>
+          {isLoading ?
+            <>
+              <StyledLoading>
+                <Spin />
+                <StyledTextLoading> Loading data</StyledTextLoading>
+              </StyledLoading>
+            </>
+            :
+            <>
+              {listData.length > 0 ? <Info data={data} options={options} selectionRange={selectionRange} lastItem={lastItem} /> : <StyledSubHeader>No Data</StyledSubHeader>}
+            </>
+          }
         </>
-        :
-        <>
 
-          {listData.length > 0 ? <Info data={data} options={options} /> : <StyledSubHeader>No Data</StyledSubHeader>}
-        </>
       }
+
 
     </StyledInfo >
   );
@@ -216,7 +253,16 @@ margin: 20px 0;
 display: flex;
 justify-items: center;
 >div{
-  margin: auto
+  margin: auto;
 }
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
+text-align: center
+`
+const TextLastItem = styled.h3`
+  text-align:end;
 `
 export default MeterInfo;

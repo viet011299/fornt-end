@@ -12,7 +12,7 @@ import buildingApi from "../../api/buildingApi";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { Table } from "antd";
+import { Spin, Table } from "antd";
 import './buildingStyled/listBuilding.css'
 
 
@@ -24,28 +24,41 @@ function ListBuilding(props) {
   const [widthSearch, setWidthSearch] = useState(120);
 
   let { url } = useRouteMatch();
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
   const fetchData = async () => {
     try {
+      setIsLoading(true)
       const response = await buildingApi.getAll();
       setData(response.data);
       setDataTable(response.data)
+      setIsLoading(false)
       console.log("Fetch building successfully: ", response);
     } catch (error) {
       console.log("Failed to fetch building list: ", error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   };
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await buildingApi.getAll();
-        setData(response.data);
-        setDataTable(response.data)
-        console.log("Fetch building successfully: ", response);
-      } catch (error) {
-        console.log("Failed to fetch building list: ", error);
-      }
-    };
-    fetchData();
+    async function getApi() {
+      await fetchData();
+    }
+    getApi()
   }, []);
   const handleDelete = async (id) => {
     try {
@@ -143,55 +156,75 @@ function ListBuilding(props) {
   return (
     <>
       <StyledTextHeader>Manager Building</StyledTextHeader>
-      <StyledHeader>
+      {
+        isLoading ?
+          <StyledLoading>
+            < Spin />
+            <StyledTextLoading> Loading data</StyledTextLoading>
+          </StyledLoading >
+          :
+          <>
+            {isError ?
+              <StyledError>
+                {error}
+              </StyledError>
+              :
+              <>
+                <StyledHeader>
 
-        <Autocomplete
-          style={{ width: widthSearch }}
-          id="free-solo-demo"
-          value={value}
-          freeSolo
-          onBlur={onBlurSearchInput}
-          onFocus={onFocusSearchInput}
-          onChange={(event, newValue) => {
-            onSearch(newValue);
-          }}
-          onInputChange={(event, newInputValue) => {
-            onSearch(newInputValue);
-          }}
-          options={data}
-          getOptionLabel={(option) => option?.buildingName}
-          renderOption={(option, { selected }) => (
-            <React.Fragment>
-              {option?.buildingName}
-            </React.Fragment>
-          )}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Search..."
-              variant="outlined"
-              id="input-with-icon-grid"
-              margin="normal"
-              size="small"
-              onChange={onSearch}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: <SearchIcon />
-              }}
-            />
-          )}
-        />
-        <StyledButtonCreate variant="contained" color="primary">
-          {" "}
-          <StyledLink to={`${url}/create`}>Create</StyledLink>{" "}
-        </StyledButtonCreate>
-      </StyledHeader>
+                  <Autocomplete
+                    style={{ width: widthSearch }}
+                    id="free-solo-demo"
+                    value={value}
+                    freeSolo
+                    onBlur={onBlurSearchInput}
+                    onFocus={onFocusSearchInput}
+                    onChange={(event, newValue) => {
+                      onSearch(newValue);
+                    }}
+                    onInputChange={(event, newInputValue) => {
+                      onSearch(newInputValue);
+                    }}
+                    options={data}
+                    getOptionLabel={(option) => option?.buildingName}
+                    renderOption={(option, { selected }) => (
+                      <React.Fragment>
+                        {option?.buildingName}
+                      </React.Fragment>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search..."
+                        variant="outlined"
+                        id="input-with-icon-grid"
+                        margin="normal"
+                        size="small"
+                        onChange={onSearch}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: <SearchIcon />
+                        }}
+                      />
+                    )}
+                  />
+                  <StyledButtonCreate variant="contained" color="primary">
+                    {" "}
+                    <StyledLink to={`${url}/create`}>Create</StyledLink>{" "}
+                  </StyledButtonCreate>
+                </StyledHeader>
 
-      <StyledTable component={Paper}>
-        <Table key="table" columns={columns} dataSource={dataTable} onChange={onChange}  pagination={{pageSize:5}} >
-          
-        </Table>
-      </StyledTable>
+                <StyledTable component={Paper}>
+                  <Table key="table" columns={columns} dataSource={dataTable} onChange={onChange} pagination={{ pageSize: 5 }} >
+
+                  </Table>
+                </StyledTable>
+              </>
+
+            }
+          </>
+      }
+
     </>
   );
 }
@@ -224,4 +257,18 @@ const StyledLinkView = styled(Link)`
   color: black;
   text-decoration: none;
 `;
+const StyledLoading = styled.div`
+display: flex;
+flex-direction: column;
+align-items: center;
+`
+const StyledTextLoading = styled.h2`
+
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
+text-align:center;
+`
 export default ListBuilding;

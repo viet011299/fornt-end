@@ -11,8 +11,9 @@ import buildingApi from '../../api/buildingApi';
 import ListFloor from './ListFloor';
 import meterApi from '../../api/meterApi';
 import { SocketContext } from '../../context/socket';
-import { isEqualsDate, formatDate,MinuteDaysThanNow } from 'helper/helper'
-
+import { isEqualsDate, formatDate, MinuteDaysThanNow } from 'helper/helper'
+import { Spin } from 'antd';
+import styled from 'styled-components';
 TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.any.isRequired,
@@ -48,18 +49,37 @@ export default function ScrollableTabsButtonAuto() {
   const dataMeterRef = useRef([])
   const [update, setUpdate] = useState(false)
 
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const fetchData = async () => {
     try {
+      setIsLoading(true)
       const response = await buildingApi.getAll()
       const getMeter = await meterApi.getAllMeterRom()
       dataMeterRef.current = getMeter.data.listData
       setListMeter(getMeter.data.listMeter)
       setDataBuilding(response.data);
+      setIsLoading(false)
       console.log('Fetch building successfully: ', getMeter.data.listData);
       return
     } catch (error) {
       console.log('Failed to fetch building list: ', error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   };
 
@@ -104,8 +124,8 @@ export default function ScrollableTabsButtonAuto() {
         kWh: 0,
         totalkWh: 0,
         data: [],
-        status:"normal",
-        timeCurrent: new Date() 
+        status: "normal",
+        timeCurrent: new Date()
       }
 
       let useDay = []
@@ -119,26 +139,26 @@ export default function ScrollableTabsButtonAuto() {
         }
       })
 
-      if(useDay.length>0){
+      if (useDay.length > 0) {
         const length = useDay.length
-        totalkWh= useDay[length- 1].kWh - useDay[0].kWh
+        totalkWh = useDay[length - 1].kWh - useDay[0].kWh
       }
       dataMeter.totalkWh = parseFloat(totalkWh.toFixed(2))
 
       if (dataMeter.data[dataMeter.data.length - 1]) {
-          dataMeter.kWh = dataMeter.data[dataMeter.data.length - 1].kWh
-          dataMeter.w = dataMeter.data[dataMeter.data.length - 1].w
-          dataMeter.a = dataMeter.data[dataMeter.data.length - 1].a
-          dataMeter.v = dataMeter.data[dataMeter.data.length - 1].v
-          dataMeter.timeCurrent = dataMeter.data[dataMeter.data.length - 1].time
-          
-          if(MinuteDaysThanNow(dataMeter.data[dataMeter.data.length - 1].time,5)){
-            dataMeter.status="warning"
-          }else{
-            if(dataMeter.a>75 || dataMeter.v>242 || dataMeter.v<176){
-              dataMeter.status="danger"
-            }
+        dataMeter.kWh = dataMeter.data[dataMeter.data.length - 1].kWh
+        dataMeter.w = dataMeter.data[dataMeter.data.length - 1].w
+        dataMeter.a = dataMeter.data[dataMeter.data.length - 1].a
+        dataMeter.v = dataMeter.data[dataMeter.data.length - 1].v
+        dataMeter.timeCurrent = dataMeter.data[dataMeter.data.length - 1].time
+
+        if (MinuteDaysThanNow(dataMeter.data[dataMeter.data.length - 1].time, 5)) {
+          dataMeter.status = "warning"
+        } else {
+          if (dataMeter.a > 75 || dataMeter.v > 242 || dataMeter.v < 176) {
+            dataMeter.status = "danger"
           }
+        }
       }
       result[`${meter.roomId}`] = dataMeter
     })
@@ -146,45 +166,66 @@ export default function ScrollableTabsButtonAuto() {
   }
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static" color="default">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-          aria-label="scrollable auto tabs example"
-        >
-          {
-            dataBuilding.map((building, index) =>
-            (
-              <Tab label={`Building ${building.buildingName}`} {...a11yProps(index)} key={index} />
-            )
-            )
-          }
-        </Tabs>
-      </AppBar>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-      >
-        {
-          dataBuilding.map((building, index) =>
-          (
-            <TabPanel value={value} index={index} dir={theme.direction} key={index}>
-              {building.buildingName} {building.buildingInfo ? building.buildingInfo : ""}
-              <ListFloor buildingData={building} dataMeter={dataShow} />
-            </TabPanel>
-          )
-          )
-        }
+    <>
+      {
+        isLoading ?
+          <StyledLoading>
+            < Spin />
+            <StyledTextLoading> Loading data</StyledTextLoading>
+          </StyledLoading >
+          :
+          <>
+            {isError ? (
+              <StyledError>
+                {error}
+              </StyledError>
+            ) :
+              <div className={classes.root}>
+                <AppBar position="static" color="default">
+                  <Tabs
+                    value={value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    aria-label="scrollable auto tabs example"
+                  >
+                    {
+                      dataBuilding.map((building, index) =>
+                      (
+                        <Tab label={`Building ${building.buildingName}`} {...a11yProps(index)} key={index} />
+                      )
+                      )
+                    }
+                  </Tabs>
+                </AppBar>
+                <SwipeableViews
+                  axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                  index={value}
+                  onChangeIndex={handleChangeIndex}
+                >
+                  {
+                    dataBuilding.map((building, index) =>
+                    (
+                      <TabPanel value={value} index={index} dir={theme.direction} key={index}>
+                        {building.buildingName} {building.buildingInfo ? building.buildingInfo : ""}
+                        <ListFloor buildingData={building} dataMeter={dataShow} />
+                      </TabPanel>
+                    )
+                    )
+                  }
 
 
-      </SwipeableViews>
-    </div>
+                </SwipeableViews>
+              </div >
+            }
+
+          </>
+
+      }
+    </>
+
   );
 }
 function TabPanel(props) {
@@ -212,3 +253,17 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 };
+const StyledLoading = styled.div`
+display: flex;
+flex-direction: column;
+align-items: center;
+`
+const StyledTextLoading = styled.h2`
+
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
+text-align:center;
+`

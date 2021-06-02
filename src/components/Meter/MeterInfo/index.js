@@ -6,10 +6,7 @@ import { ArrowBack } from '@material-ui/icons'
 import moment from "moment"
 import meterApi from '../../../api/meterApi';
 import { SocketContext } from '../../../context/socket';
-import GaugeChart from 'react-gauge-chart'
-import ApexCharts from 'apexcharts';
 import Info from './Info';
-import { CircularProgress } from '@material-ui/core';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePickerData from './DatePicker';
 import { Spin } from 'antd';

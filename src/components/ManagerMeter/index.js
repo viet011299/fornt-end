@@ -19,6 +19,7 @@ import meterApi from '../../api/meterApi';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link } from 'react-router-dom';
+import { Spin } from 'antd';
 
 const useStyles2 = makeStyles({
   table: {
@@ -29,9 +30,14 @@ function ManagerMeter() {
   const classes = useStyles2();
   const [page, setPage] = useState(0);
   const [data, setData] = useState([])
-  const [listBuilding, setListBuilding] =useState([])
+  const [listBuilding, setListBuilding] = useState([])
   const [rowsPerPage, setRowsPerPage] = useState(5);
   let { url } = useRouteMatch();
+
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
   const handleChangePage = (newPage) => {
@@ -61,13 +67,29 @@ function ManagerMeter() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true)
         const response = await meterApi.getAll()
         const getListBuilding = await meterApi.getBuildings()
         setData(response.data);
         setListBuilding(getListBuilding.data)
+        setIsLoading(false)
         console.log('Fetch building successfully: ', response);
       } catch (error) {
         console.log('Failed to fetch building list: ', error);
+        if (error.response) {
+          // Request made and server responded
+          const errorMessage = error.response.data.message
+          console.log(error.response.data);
+          setIsLoading(false)
+          setIsError(true)
+          setError(errorMessage)
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message);
+          setIsLoading(false)
+          setIsError(true)
+          setError(error.message)
+        }
       }
     };
     fetchData();
@@ -77,69 +99,85 @@ function ManagerMeter() {
       <StyledHeader>
         <StyledTextHeader>Manager Meter</StyledTextHeader>
       </StyledHeader>
+      {
+        isLoading ?
+          <StyledLoading>
+            < Spin />
+            <StyledTextLoading> Loading data</StyledTextLoading>
+          </StyledLoading >
+          :
+          <>
+            {isError ?
+              <StyledError>
+                {error}
+              </StyledError>
+              :
+              <StyledTable component={Paper}>
+                <Table className={classes.table} aria-label="custom pagination table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center" >#</TableCell>
+                      <TableCell align="center" >Meter Id</TableCell>
+                      <TableCell align="center" >Location</TableCell>
+                      <TableCell align="center" >Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(rowsPerPage > 0
+                      ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      : data
+                    ).map((row, index) => (
+                      <TableRow key={index}>
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row.meterId}
+                        </TableCell>
+                        <TableCell align="center">
+                          {showLocation(row)}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Tooltip title="View">
+                            <StyledLinkView to={`/meters/${row.meterId}`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
+                          </Tooltip>
+                          <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
+                        </TableCell>
 
-      <StyledTable component={Paper}>
-        <Table className={classes.table} aria-label="custom pagination table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" >#</TableCell>
-              <TableCell align="center" >Meter Id</TableCell>
-              <TableCell align="center" >Location</TableCell>
-              <TableCell align="center" >Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(rowsPerPage > 0
-              ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              : data
-            ).map((row, index) => (
-              <TableRow key={index}>
-                <TableCell align="center">
-                  {page * rowsPerPage + index + 1}
-                </TableCell>
-                <TableCell align="center">
-                  {row.meterId}
-                </TableCell>
-                <TableCell align="center">
-                  {showLocation(row)}
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title="View">
-                    <StyledLinkView to={`/meters/${row.meterId}`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
-                  </Tooltip>
-                  <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
-                </TableCell>
+                      </TableRow>
+                    ))}
 
-              </TableRow>
-            ))}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
+                  </TableBody>
+                  <TableFooter>
+                    <TableRow>
+                      <TablePagination
+                        align="right"
+                        rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
+                        colSpan={5}
+                        count={data.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        SelectProps={{
+                          inputProps: { 'aria-label': 'rows per page' },
+                          native: true,
+                        }}
+                        onChangePage={handleChangePage}
+                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        ActionsComponent={TablePaginationActions}
+                      />
+                    </TableRow>
+                  </TableFooter>
+                </Table>
+              </StyledTable>
+            }
+          </>
+      }
 
-            {emptyRows > 0 && (
-              <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                align="right"
-                rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
-                colSpan={5}
-                count={data.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true,
-                }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </StyledTable>
     </>
   )
 }
@@ -167,5 +205,19 @@ const StyledLinkView = styled(Link)`
   text-decoration: none;
 `
 
+const StyledLoading = styled.div`
+display: flex;
+flex-direction: column;
+align-items: center;
+`
+const StyledTextLoading = styled.h2`
+
+`
+const StyledError = styled.div`
+margin-bottom:10px;
+font-size:18px;
+color:red;
+text-align:center;
+`
 export default ManagerMeter
 

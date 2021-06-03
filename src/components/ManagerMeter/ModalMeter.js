@@ -85,7 +85,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     setErrorDefault()
     try {
       const response = await meterApi.edit(
-        meterData._id,
+        meterData.meterId,
         {
           roomId: roomId,
           buildingId: buildingId,

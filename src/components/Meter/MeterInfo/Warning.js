@@ -54,7 +54,7 @@ function Warning({ lastItem }) {
     <WarningText>
 
       {
-        isWarning && <Alert message="Error" description="Data collection meter or disconnect" type="error" />
+        isWarning && <Alert message="Error" description="Data collection meter error or disconnect" type="error" />
       }
 
       {

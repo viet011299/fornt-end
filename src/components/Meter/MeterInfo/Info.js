@@ -11,7 +11,7 @@ const getTextTime = (range) => {
   return `${formatDateForDay(range.startDate)} - ${formatDateForDay(range.endDate)}`
 }
 function Info({ data, options, selectionRange, lastItem }) {
-  console.log(data);
+  console.log(lastItem);
   const seriesU = [
     {
       name: "V",
@@ -75,7 +75,7 @@ function Info({ data, options, selectionRange, lastItem }) {
         </Col>
 
       </Row>
-      {isEqualsDate(selectionRange.endDate, new Date()) && isEqualsDate(lastItem.createdAt, new Date()) &&
+      { lastItem && isEqualsDate(selectionRange.endDate, new Date())  && isEqualsDate(lastItem.time, new Date()) &&
         <Row gutter={18} justify="center" style={{ margin: "10px 0" }}>
           <Col span={8}>
             <Card>

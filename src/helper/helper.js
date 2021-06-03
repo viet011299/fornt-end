@@ -39,3 +39,8 @@ export const formatDateForDay = (date) => {
   const format = "DD-MM-YYYY"
   return moment(date).format(format);
 }
+
+export const getTextTime = (range) => {
+  if (isEqualsDate(range.startDate, range.endDate)) return formatDateForDay(range.startDate)
+  return `${formatDateForDay(range.startDate)} - ${formatDateForDay(range.endDate)}`
+}

@@ -12,12 +12,20 @@ import DatePickerData from './DatePicker';
 import { Spin } from 'antd';
 import { isEqualsDate, formatDate } from 'helper/helper'
 import Warning from './Warning';
-
+import { Button } from 'antd';
+import Analytics from './Analytics';
 
 
 function MeterInfo(props) {
   const socket = useContext(SocketContext);
   const meterId = props.match.params.id;
+  const [selectionRange, setSelectionRange] = useState(
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    }
+  )
   const [meter, setMeter] = useState({})
   const [listData, setListData] = useState([])
 
@@ -29,14 +37,9 @@ function MeterInfo(props) {
   const listDataRef = useRef([])
   const timeStartRef = useRef(new Date())
   const timeEndRef = useRef(new Date())
+  
+ 
 
-  const [selectionRange, setSelectionRange] = useState(
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: 'selection',
-    }
-  )
   const [options, setOptions] = useState(
     {
       chart: {
@@ -108,8 +111,8 @@ function MeterInfo(props) {
       setListData(response.data.listData)
       setLastItem(response.data.lastItem)
       listDataRef.current = response.data.listData
+      setIsLoading(false)
       console.log('Fetch building successfully: ', response);
-      return response.data
     } catch (error) {
       if (error.response) {
         // Request made and server responded
@@ -134,6 +137,7 @@ function MeterInfo(props) {
           listDataRef.current = [...listDataRef.current, data]
           setListData(listDataRef.current)
         }
+        console.log(data);
         setLastItem(data)
       })
     }
@@ -156,11 +160,6 @@ function MeterInfo(props) {
     getApi()
   }, [selectionRange])
 
-  const setErrorDefault = () => {
-    setError("")
-    setIsError(false)
-  }
-
   const setDataMeter = () => {
     const u = []
     const i = []
@@ -178,6 +177,7 @@ function MeterInfo(props) {
     setIsLoading(false)
   }
 
+  
 
   return (
     <StyledInfo>
@@ -193,13 +193,14 @@ function MeterInfo(props) {
             <ArrowBack style={{ marginRight: '10px' }} /> Back
       </StyledLink>
           <StyledHeader>Meter {meterId}</StyledHeader>
-          <TextLastItem> {lastItem && `Last update: ${formatDate(lastItem.createdAt)}`}</TextLastItem>
+          <TextLastItem> {lastItem && `Last update: ${formatDate(lastItem.time)}`}</TextLastItem>
           <Warning lastItem={lastItem} />
           <StyledDatePicker>
             <DatePickerData selectionRange={selectionRange} setSelectionRange={setSelectionRange} />
           </StyledDatePicker>
           {isLoading ?
             <>
+
               <StyledLoading>
                 <Spin />
                 <StyledTextLoading> Loading data</StyledTextLoading>
@@ -207,7 +208,12 @@ function MeterInfo(props) {
             </>
             :
             <>
-              {listData.length > 0 ? <Info data={data} options={options} selectionRange={selectionRange} lastItem={lastItem} /> : <StyledSubHeader>No Data</StyledSubHeader>}
+              {listData.length > 0 ? <>
+             
+                <Analytics selectionRange={selectionRange}  listData={listData}/>
+                <Info data={data} options={options} selectionRange={selectionRange} lastItem={lastItem} /> </>
+                :
+                <StyledSubHeader>No Data</StyledSubHeader>}
             </>
           }
         </>

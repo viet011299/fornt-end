@@ -191,7 +191,6 @@ function Analytics({ selectionRange, listData }) {
         onCancel={handleCancel}
       >
         <h3>Total Energy: {totalE(listData)}</h3>
-        <p>Max,min</p>
         <Table dataSource={dataMinMax} columns={columnsMaxMin} />
 
         <p>Quá dòng: n times</p>

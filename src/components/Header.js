@@ -98,7 +98,7 @@ function Header() {
             marginTop: "10px",
             marginRight: "40px"
           }}
-          to="/Login"
+          to="/login"
         >
           <li>Login</li>
         </Link>

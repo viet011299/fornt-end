@@ -30,16 +30,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ModalRoom({ roomData, buildingData, fetchData }) {
-
   const isEdit = roomData ? true : false
+
   const buildingProp = buildingData
   const classes = useStyles();
-  const [modalStyle] = React.useState(getModalStyle);
-  const [open, setOpen] = React.useState(false);
+  const modalStyle = getModalStyle();
+  const [open, setOpen] = useState(false);
+
   const [roomName, setRoomName] = useState("")
   const [roomInfo, setRoomInfo] = useState("")
   const [building, setBuilding] = useState("")
   const [floor, setFloor] = useState(1)
+
   const [error, setError] = useState("")
   const [isError, setIsError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -47,13 +49,16 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
   const handleValue = (e, setValue) => {
     setValue(e.target.value)
   }
+
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
     setAllDefault();
   };
+
   const setAllDefault = () => {
     setRoomName("")
     setRoomInfo("")
@@ -71,6 +76,7 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
     setFloor(roomData.floor)
     setBuilding(roomData.buildingId)
   }
+
   useEffect(() => {
     const setAllDefault = () => {
       setRoomName("")
@@ -91,6 +97,7 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
       setAllDefault()
     }
   }, [roomData])
+
   const handleSave = async function () {
     setErrorDefault()
     setIsLoading(true)
@@ -174,93 +181,96 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
             </IconButton>
           </Tooltip>
       }
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
-      >
-        <StyledModal style={modalStyle} className={classes.paper}>
+      {open &&
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        >
+          <StyledModal style={modalStyle} className={classes.paper}>
 
-          <StyledNodalHeader>
-            <StyledTextHeader> {!isEdit ? "Create Room" : "Edit Room"}</StyledTextHeader>
-            <CloseModal onClick={handleClose}>
-              <HighlightOff />
-            </CloseModal>
-          </StyledNodalHeader>
+            <StyledNodalHeader>
+              <StyledTextHeader> {!isEdit ? "Create Room" : "Edit Room"}</StyledTextHeader>
+              <CloseModal onClick={handleClose}>
+                <HighlightOff />
+              </CloseModal>
+            </StyledNodalHeader>
 
-          <StyledGroupTextField>
+            <StyledGroupTextField>
 
-            <StyledTextField
-              required
-              InputLabelProps={{
-                shrink: true,
-              }}
-              id="outlined-required"
-              label="Room Name"
-              variant="outlined"
-              placeholder="Room Name"
-              value={roomName}
-              onChange={(e) => handleValue(e, setRoomName)}
-            />
+              <StyledTextField
+                required
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                id="outlined-required"
+                label="Room Name"
+                variant="outlined"
+                placeholder="Room Name"
+                value={roomName}
+                onChange={(e) => handleValue(e, setRoomName)}
+              />
 
-            <StyledTextField
-              InputLabelProps={{
-                shrink: true,
-              }}
-              id="outlined"
-              label="Room Info"
-              variant="outlined"
-              placeholder="Room Info"
-              value={roomInfo}
-              onChange={(e) => handleValue(e, setRoomInfo)}
-            />
-            <StyledFormControl >
-              <InputLabel shrink htmlFor="age-native-label-placeholder">
-                Building
-              </InputLabel>
-              <NativeSelect
-                value={building}
-                onChange={(e) => handleValue(e, setBuilding)}
-              >
-                {<option value={buildingProp._id}>{buildingProp.buildingID} {buildingProp.buildingName} </option>}
-              </NativeSelect>
-              <FormHelperText>Select Building</FormHelperText>
-            </StyledFormControl>
+              <StyledTextField
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                id="outlined"
+                label="Room Info"
+                variant="outlined"
+                placeholder="Room Info"
+                value={roomInfo}
+                onChange={(e) => handleValue(e, setRoomInfo)}
+              />
+              <StyledFormControl >
+                <InputLabel shrink htmlFor="age-native-label-placeholder">
+                  Building
+             </InputLabel>
+                <NativeSelect
+                  value={building}
+                  onChange={(e) => handleValue(e, setBuilding)}
+                >
+                  {<option value={buildingProp._id}>{buildingProp.buildingID} {buildingProp.buildingName} </option>}
+                </NativeSelect>
+                <FormHelperText>Select Building</FormHelperText>
+              </StyledFormControl>
 
-            <StyledFormControl >
-              <InputLabel shrink htmlFor="age-native-label-placeholder">
-                Floor
-              </InputLabel>
-              <NativeSelect
-                value={floor}
-                onChange={(e) => handleValue(e, setFloor)}
-              >
-                {
-                  options
-                }
-              </NativeSelect>
-              <FormHelperText>Select Floor</FormHelperText>
-            </StyledFormControl>
-            {
-              isLoading &&
-              <CircularProgress style={{ marginBottom: "10px" }} />
-            }
+              <StyledFormControl >
+                <InputLabel shrink htmlFor="age-native-label-placeholder">
+                  Floor
+             </InputLabel>
+                <NativeSelect
+                  value={floor}
+                  onChange={(e) => handleValue(e, setFloor)}
+                >
+                  {
+                    options
+                  }
+                </NativeSelect>
+                <FormHelperText>Select Floor</FormHelperText>
+              </StyledFormControl>
+              {
+                isLoading &&
+                <CircularProgress style={{ marginBottom: "10px" }} />
+              }
 
-            {isError && (
-              <StyledError>
-                {error}
-              </StyledError>
-            )}
-            {!isEdit ?
-              <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
-              <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
-            }
+              {isError && (
+                <StyledError>
+                  {error}
+                </StyledError>
+              )}
+              {!isEdit ?
+                <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
+                <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
+              }
 
-          </StyledGroupTextField>
-        </StyledModal>
+            </StyledGroupTextField>
+          </StyledModal>
 
-      </Modal>
+        </Modal>
+      }
+
     </>
   )
 }

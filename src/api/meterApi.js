@@ -16,9 +16,12 @@ class MeterApi {
         return axiosClient.delete(`${url}/${id}`, body);
     }
 
-    read = (meterId,query) => {
-        
+    read = (meterId, query) => {
         return axiosClient.get(`${url}/${meterId}?${queryString.stringify(query)}`);
+    }
+    
+    analytics = (meterId, query) => {
+        return axiosClient.get(`${url}/analytics/${meterId}?${queryString.stringify(query)}`);
     }
 
     getBuildings = () => {
@@ -27,6 +30,7 @@ class MeterApi {
     getAllMeterRom = () => {
         return axiosClient.get(`/get-all${url} `);
     }
+
 }
 const meterApi = new MeterApi();
 export default meterApi;

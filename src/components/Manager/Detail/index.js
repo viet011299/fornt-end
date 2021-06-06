@@ -119,7 +119,14 @@ function Detail(props) {
   const handleValue = (e, setValue) => {
     setValue(e.target.value)
   }
+  const handleValueFloor = (e) => {
+    let floor = e.target.value;
 
+    if (floor === '' || /^[0-9\b]+$/.test(floor)) {
+      console.log(floor);
+      setNumberFloor(floor)
+    }
+  }
   return (
     <div>
       <StyledLink
@@ -147,15 +154,15 @@ function Detail(props) {
           required
           id="outlined-number"
           label="Number Floor"
-          type="number"
           InputLabelProps={{
             shrink: true,
           }}
           variant="outlined"
           placeholder="Number Floor"
           value={numberFloor}
-          onChange={(e) => handleValue(e, setNumberFloor)}
+          onChange={(e) => handleValueFloor(e)}
         />
+        
         <StyledTextField
           InputLabelProps={{
             shrink: true,

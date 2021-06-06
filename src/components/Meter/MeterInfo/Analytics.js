@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Modal, Button, Table } from 'antd';
 import { getTextTime, formatDate } from 'helper/helper'
+import meterApi from 'api/meterApi';
 
 const minMax = (listData) => {
   let minV = Number.POSITIVE_INFINITY
@@ -85,6 +86,7 @@ const minMax = (listData) => {
 
   return data
 }
+
 const totalE = (listData) => {
   let result = 0
   if (listData.length > 0) {
@@ -95,20 +97,19 @@ const totalE = (listData) => {
 
   return result
 }
-function Analytics({ selectionRange, listData }) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const dataMinMax = useMemo(() => minMax(listData), [listData])
-  console.log(dataMinMax);
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
+function Analytics({ selectionRange, listData, meterId, isModalVisible, closeModal }) {
 
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [isError, setIsError] = useState(false)
+  const [listEvent, setListEvent] = useState({})
+  const dataMinMax = useMemo(() => minMax(listData), [listData])
   const handleOk = () => {
-    setIsModalVisible(false);
+    closeModal()
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    closeModal()
   };
   const dataSource = [
     {
@@ -130,54 +131,90 @@ function Analytics({ selectionRange, listData }) {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      align: "center",
     },
     {
       title: 'Value',
       dataIndex: 'value',
       key: 'value',
+      align: "center",
     },
     {
       title: 'Time',
       dataIndex: 'time',
       key: 'time',
-      render: (text, row) => formatDate(text)
+      render: (text, row) => formatDate(text),
+      align: "center",
     },
   ];
   const columnsLostE = [
     {
       title: 'Start',
-      dataIndex: 'age',
-      key: 'age',
+      dataIndex: 'start',
+      key: 'start',
+      render: (text, row) => formatDate(text),
+      align: "center",
     },
     {
       title: 'End',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'end',
+      key: 'end',
+      render: (text, row) => formatDate(text),
+      align: "center",
     },
   ];
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
       title: 'Value',
-      dataIndex: 'age',
-      key: 'age',
+      dataIndex: 'value',
+      key: 'value',
+      align: "center",
     },
     {
-      title: 'Time',
-      dataIndex: 'address',
-      key: 'address',
+      title: 'Start',
+      dataIndex: 'start',
+      key: 'start',
+      align: "center",
+    },
+    {
+      title: 'End',
+      dataIndex: 'start',
+      key: 'start',
+      align: "center",
     },
   ];
+  const fetchData = async () => {
+    try {
+      setIsLoading(true)
+      const query = { startDate: selectionRange.startDate, endDate: selectionRange.endDate }
+      const response = await meterApi.analytics(meterId, query)
+      setListEvent(response.data)
+      setIsLoading(false)
+      console.log('Fetch building successfully: ', response);
+    } catch (error) {
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsError(true)
+        setError(error.message)
+      }
+      setIsLoading(false)
+    }
+  }
+  useEffect(() => {
+    async function getApi() {
+      await fetchData();
+    }
+    getApi()
+  }, [])
   return (
     <>
-      <Button type="primary" onClick={showModal}>
-        Analytics
-      </Button>
-
       <Modal centered width={1000}
         bodyStyle={{
           height: " 500px",
@@ -193,17 +230,19 @@ function Analytics({ selectionRange, listData }) {
         <h3>Total Energy: {totalE(listData)}</h3>
         <Table dataSource={dataMinMax} columns={columnsMaxMin} />
 
-        <p>Quá dòng: n times</p>
-        <Table dataSource={dataSource} columns={columns} />
+        <h3>Power Cut: {listEvent["8"] ? listEvent["8"].length : 0} times</h3>
+        <Table dataSource={listEvent["8"] || []} columns={columnsLostE} pagination={{ pageSize: 5 }}/>
 
-        <p>Điện áp thấp: n times</p>
-        <Table dataSource={dataSource} columns={columns} />
+        <h3>Over current: {listEvent["1"] ? listEvent["3"].length : 0} times</h3>
+        <Table dataSource={listEvent["1"] || []} columns={columns} pagination={{ pageSize: 5 }}/>
 
-        <p>Điện áp cao: n times</p>
-        <Table dataSource={dataSource} columns={columns} />
+        <h3>Over Voltage: {listEvent["2"] ? listEvent["2"].length : 0} times</h3>
+        <Table dataSource={listEvent["2"] || []} columns={columns} pagination={{ pageSize: 5 }}/>
 
-        <p>Mất điện: n times</p>
-        <Table dataSource={dataSource} columns={columnsLostE} />
+        <h3>Low Voltage : {listEvent["3"] ? listEvent["1"].length : 0} times</h3>
+        <Table dataSource={listEvent["3"] || []} columns={columns} pagination={{ pageSize: 5 }} />
+
+
       </Modal>
     </>
   );

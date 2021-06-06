@@ -37,8 +37,8 @@ function MeterInfo(props) {
   const listDataRef = useRef([])
   const timeStartRef = useRef(new Date())
   const timeEndRef = useRef(new Date())
-  
- 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
 
   const [options, setOptions] = useState(
     {
@@ -177,8 +177,12 @@ function MeterInfo(props) {
     setIsLoading(false)
   }
 
-  
-
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const closeModal = () =>{
+    setIsModalVisible(false)
+  }
   return (
     <StyledInfo>
       {isError ? (
@@ -209,8 +213,13 @@ function MeterInfo(props) {
             :
             <>
               {listData.length > 0 ? <>
-             
-                <Analytics selectionRange={selectionRange}  listData={listData}/>
+                <Button type="primary" onClick={showModal}>
+                  Analytics
+                </Button>
+                {isModalVisible &&
+                  <Analytics selectionRange={selectionRange} listData={listData} meterId={meterId} closeModal={closeModal} isModalVisible={isModalVisible}/>
+                }
+
                 <Info data={data} options={options} selectionRange={selectionRange} lastItem={lastItem} /> </>
                 :
                 <StyledSubHeader>No Data</StyledSubHeader>}

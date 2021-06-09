@@ -64,7 +64,7 @@ function Info({ data, options, selectionRange, lastItem }) {
         <Col span={8}>
           <Card>
             <Statistic
-              title="Energy"
+              title="Total Energy"
               value={lastItem && lastItem.kWh}
               precision={2}
               valueStyle={{ color: '#3f8600' }}

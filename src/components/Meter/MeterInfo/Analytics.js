@@ -175,12 +175,14 @@ function Analytics({ selectionRange, listData, meterId, isModalVisible, closeMod
       dataIndex: 'start',
       key: 'start',
       align: "center",
+      render: (text, row) => formatDate(text),
     },
     {
       title: 'End',
       dataIndex: 'start',
       key: 'start',
       align: "center",
+      render: (text, row) => formatDate(text),
     },
   ];
   const fetchData = async () => {
@@ -227,17 +229,17 @@ function Analytics({ selectionRange, listData, meterId, isModalVisible, closeMod
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <h3>Total Energy: {totalE(listData)}</h3>
+        <h3>Total Energy: {totalE(listData)} kWh</h3>
         <Table dataSource={dataMinMax} columns={columnsMaxMin} />
 
         <h3>Power Cut: {listEvent["8"] ? listEvent["8"].length : 0} times</h3>
-        <Table dataSource={listEvent["8"] || []} columns={columnsLostE} pagination={{ pageSize: 5 }}/>
+        <Table dataSource={listEvent["8"] || []} columns={columnsLostE} pagination={{ pageSize: 5 }} />
 
         <h3>Over current: {listEvent["1"] ? listEvent["3"].length : 0} times</h3>
-        <Table dataSource={listEvent["1"] || []} columns={columns} pagination={{ pageSize: 5 }}/>
+        <Table dataSource={listEvent["1"] || []} columns={columns} pagination={{ pageSize: 5 }} />
 
         <h3>Over Voltage: {listEvent["2"] ? listEvent["2"].length : 0} times</h3>
-        <Table dataSource={listEvent["2"] || []} columns={columns} pagination={{ pageSize: 5 }}/>
+        <Table dataSource={listEvent["2"] || []} columns={columns} pagination={{ pageSize: 5 }} />
 
         <h3>Low Voltage : {listEvent["3"] ? listEvent["1"].length : 0} times</h3>
         <Table dataSource={listEvent["3"] || []} columns={columns} pagination={{ pageSize: 5 }} />

@@ -209,7 +209,8 @@ export default function ScrollableTabsButtonAuto() {
                     dataBuilding.map((building, index) =>
                     (
                       <TabPanel value={value} index={index} dir={theme.direction} key={index}>
-                        {building.buildingName} {building.buildingInfo ? building.buildingInfo : ""}
+                        <StyledTextBuilding> {building.buildingName} {building.buildingInfo ? `- ${building.buildingInfo}` : ""}</StyledTextBuilding>
+
                         <ListFloor buildingData={building} dataMeter={dataShow} />
                       </TabPanel>
                     )
@@ -260,6 +261,9 @@ align-items: center;
 `
 const StyledTextLoading = styled.h2`
 
+`
+const StyledTextBuilding = styled.h3`
+text-align:center;
 `
 const StyledError = styled.div`
 margin-bottom:10px;

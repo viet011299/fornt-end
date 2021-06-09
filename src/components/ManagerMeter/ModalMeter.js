@@ -80,7 +80,7 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
     setValue(e.target.value)
   }
 
-  const handleEdit = async function () {
+  const edit = async function() {
     setIsLoading(true)
     setErrorDefault()
     try {
@@ -111,6 +111,9 @@ function ModalMeter({ meterData, fetchData, listBuilding }) {
         setError(error.message)
       }
     }
+  }
+  const handleEdit = async function () {
+    if (window.confirm('Are you sure you wish to edit this item?')) edit()
   }
 
   const putBuildings = (list) => {

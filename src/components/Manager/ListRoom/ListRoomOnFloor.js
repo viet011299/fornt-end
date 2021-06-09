@@ -9,12 +9,14 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { IconButton, TableHead, Tooltip } from '@material-ui/core';
+import { IconButton, TableHead, TextField, Tooltip } from '@material-ui/core';
 import styled from 'styled-components'
 import TablePaginationActions from '../TablePaginationActions'
 import ModalRoom from './ModalRoom';
 import roomApi from '../../../api/roomApi';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Input, Space } from 'antd';
+import { AudiotrackOutlined } from '@material-ui/icons';
 
 const useStyles2 = makeStyles({
   table: {
@@ -22,11 +24,25 @@ const useStyles2 = makeStyles({
   },
 });
 
+const { Search } = Input;
+
+const suffix = (
+  <AudiotrackOutlined
+    style={{
+      fontSize: 16,
+      color: '#1890ff',
+    }}
+  />
+);
+
+
+
 function ListRoomOnFloor({ floorData, buildingData, fetchData }) {
   const rooms = floorData.listRooms
   const classes = useStyles2();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rooms.length - page * rowsPerPage);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -37,11 +53,13 @@ function ListRoomOnFloor({ floorData, buildingData, fetchData }) {
   };
 
   const handleDelete = async (roomId) => {
-    try {
-      const response = await roomApi.delete(roomId)
-      await fetchData();
-    } catch (error) {
-      console.log(error)
+    if (window.confirm('Are you sure you wish to delete this item?')) {
+      try {
+        const response = await roomApi.delete(roomId)
+        await fetchData();
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -126,7 +144,10 @@ const StyledHeader = styled.div`
 const StyledTextHeader = styled.h1`
   flex:1;
 `
-
+const StyledTextField = styled(TextField)`
+  margin: 20px auto !important;
+  height: 25%;
+`
 
 ListRoomOnFloor.propTypes = {
   floor: PropTypes.object

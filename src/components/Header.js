@@ -56,17 +56,6 @@ function Header() {
             marginTop: "10px",
             marginRight: "40px",
           }}
-          to="/meters"
-        >
-          <li>Meters</li>
-        </Link>
-        <Link
-          style={{
-            color: "white",
-            textDecoration: "none",
-            marginTop: "10px",
-            marginRight: "40px",
-          }}
           to="/manager"
         >
           <li>Manager Building</li>
@@ -81,6 +70,17 @@ function Header() {
           to="/manager-meter"
         >
           <li>Manager Meter</li>
+        </Link>
+        <Link
+          style={{
+            color: "white",
+            textDecoration: "none",
+            marginTop: "10px",
+            marginRight: "40px",
+          }}
+          to="/meters"
+        >
+          <li>Meters</li>
         </Link>
         {user &&
           <Link

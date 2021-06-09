@@ -56,7 +56,12 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
 
   const handleClose = () => {
     setOpen(false);
-    setAllDefault();
+    if (!isEdit) {
+      setAllDefault();
+    } else {
+      setData(roomData)
+    }
+
   };
 
   const setAllDefault = () => {
@@ -85,7 +90,6 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
       setBuilding(buildingProp._id)
     }
     const setData = (roomData) => {
-
       setRoomName(roomData.roomName)
       setRoomInfo(roomData.roomInfo)
       setFloor(roomData.floor)
@@ -261,10 +265,9 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
                 </StyledError>
               )}
               {!isEdit ?
-                <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
-                <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
+                <StyledButton variant="contained" color="primary" onClick={() => { if (window.confirm('Are you sure you wish to save this item?')) handleSave() }}>Save </StyledButton> :
+                <StyledButton variant="contained" color="primary" onClick={() => { if (window.confirm('Are you sure you wish to edit this item?')) handleEdit() }}>Edit </StyledButton>
               }
-
             </StyledGroupTextField>
           </StyledModal>
 

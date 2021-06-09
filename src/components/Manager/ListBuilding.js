@@ -118,7 +118,7 @@ function ListBuilding(props) {
             <IconButton
               size="small"
               color="secondary"
-              onClick={() => handleDelete(record._id)}
+              onClick={() => {if (window.confirm('Are you sure you wish to delete this item?')) handleDelete(record._id)}}
             >
               <DeleteIcon />{" "}
             </IconButton>

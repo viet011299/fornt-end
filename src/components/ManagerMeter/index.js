@@ -19,13 +19,26 @@ import meterApi from '../../api/meterApi';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link } from 'react-router-dom';
-import { Spin } from 'antd';
+import { Spin, Input, Space } from 'antd';
+import { AudiotrackOutlined } from '@material-ui/icons';
 
 const useStyles2 = makeStyles({
   table: {
     minWidth: 500,
   },
 });
+
+const { Search } = Input;
+
+const suffix = (
+  <AudiotrackOutlined
+    style={{
+      fontSize: 16,
+      color: '#1890ff',
+    }}
+  />
+);
+
 function ManagerMeter() {
   const classes = useStyles2();
   const [page, setPage] = useState(0);
@@ -38,6 +51,10 @@ function ManagerMeter() {
   const [isError, setIsError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+
+  const [searchText, setSearchText] = useState("")
+  const [listDataShow, setListDataShow] = useState([])
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
   const handleChangePage = (newPage) => {
@@ -48,7 +65,7 @@ function ManagerMeter() {
     if (!item.buildingId && !item.roomId) {
       return "-"
     }
-    return `Room ${item.roomName} Floor ${item.floor} Building ${item.buildingName}`
+    return `Room ${item.roomName || "?"} Floor ${item.floor || "?"} Building ${item.buildingName || "?"}`
   }
 
   const handleChangeRowsPerPage = (event) => {
@@ -57,43 +74,48 @@ function ManagerMeter() {
   };
   const fetchData = async () => {
     try {
+      setIsLoading(true)
       const response = await meterApi.getAll()
+      const getListBuilding = await meterApi.getBuildings()
       setData(response.data);
+      setListBuilding(getListBuilding.data)
+      setListDataShow(response.data.filter(i => i.meterId.includes(searchText)))
+      setIsLoading(false)
       console.log('Fetch building successfully: ', response);
     } catch (error) {
       console.log('Failed to fetch building list: ', error);
+      if (error.response) {
+        // Request made and server responded
+        const errorMessage = error.response.data.message
+        console.log(error.response.data);
+        setIsLoading(false)
+        setIsError(true)
+        setError(errorMessage)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+        setIsLoading(false)
+        setIsError(true)
+        setError(error.message)
+      }
     }
   };
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        const response = await meterApi.getAll()
-        const getListBuilding = await meterApi.getBuildings()
-        setData(response.data);
-        setListBuilding(getListBuilding.data)
-        setIsLoading(false)
-        console.log('Fetch building successfully: ', response);
-      } catch (error) {
-        console.log('Failed to fetch building list: ', error);
-        if (error.response) {
-          // Request made and server responded
-          const errorMessage = error.response.data.message
-          console.log(error.response.data);
-          setIsLoading(false)
-          setIsError(true)
-          setError(errorMessage)
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log('Error', error.message);
-          setIsLoading(false)
-          setIsError(true)
-          setError(error.message)
-        }
-      }
-    };
-    fetchData();
+    async function getApi() {
+      await fetchData();
+    }
+    getApi();
   }, []);
+
+  useEffect(() => {
+    setListDataShow(data.filter(i => i.meterId.includes(searchText)))
+  }, [searchText]);
+
+
+  const onSearch = value => setListDataShow(data.filter(i => i.meterId.includes(value)))
+  const handleValue = (e, setValue) => {
+    setValue(e.target.value)
+  }
   return (
     <>
       <StyledHeader>
@@ -112,68 +134,84 @@ function ManagerMeter() {
                 {error}
               </StyledError>
               :
-              <StyledTable component={Paper}>
-                <Table className={classes.table} aria-label="custom pagination table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="center" >#</TableCell>
-                      <TableCell align="center" >Meter Id</TableCell>
-                      <TableCell align="center" >Location</TableCell>
-                      <TableCell align="center" >Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {(rowsPerPage > 0
-                      ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      : data
-                    ).map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row.meterId}
-                        </TableCell>
-                        <TableCell align="center">
-                          {showLocation(row)}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="View">
-                            <StyledLinkView to={`/meters/${row.meterId}`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
-                          </Tooltip>
-                          <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
-                        </TableCell>
-
+              <>
+                <Search
+                  placeholder="Search meter id"
+                  allowClear
+                  enterButton="Search"
+                  size="large"
+                  onSearch={onSearch}
+                  value={searchText}
+                  onChange={e => handleValue(e, setSearchText)}
+                  style={
+                    {
+                      width: "40%"
+                    }
+                  }
+                />
+                <StyledTable component={Paper}>
+                  <Table className={classes.table} aria-label="custom pagination table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="center" >#</TableCell>
+                        <TableCell align="center" >Meter Id</TableCell>
+                        <TableCell align="center" >Location</TableCell>
+                        <TableCell align="center" >Action</TableCell>
                       </TableRow>
-                    ))}
+                    </TableHead>
+                    <TableBody>
+                      {(rowsPerPage > 0
+                        ? listDataShow.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        : listDataShow
+                      ).map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell align="center">
+                            {row.meterId}
+                          </TableCell>
+                          <TableCell align="center">
+                            {showLocation(row)}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Tooltip title="View">
+                              <StyledLinkView to={`/meters/${row.meterId}`}>  <IconButton size="small" color="inherit"><VisibilityIcon /></IconButton>  </StyledLinkView>
+                            </Tooltip>
+                            <ModalMeter meterData={row} listBuilding={listBuilding} fetchData={fetchData} />
+                          </TableCell>
 
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
-                        <TableCell colSpan={6} />
+                        </TableRow>
+                      ))}
+
+                      {emptyRows > 0 && (
+                        <TableRow style={{ height: 53 * emptyRows }}>
+                          <TableCell colSpan={6} />
+                        </TableRow>
+                      )}
+                    </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TablePagination
+                          align="right"
+                          rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
+                          colSpan={5}
+                          count={data.length}
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          SelectProps={{
+                            inputProps: { 'aria-label': 'rows per page' },
+                            native: true,
+                          }}
+                          onChangePage={handleChangePage}
+                          onChangeRowsPerPage={handleChangeRowsPerPage}
+                          ActionsComponent={TablePaginationActions}
+                        />
                       </TableRow>
-                    )}
-                  </TableBody>
-                  <TableFooter>
-                    <TableRow>
-                      <TablePagination
-                        align="right"
-                        rowsPerPageOptions={[5, 10, { label: 'All', value: -1 }]}
-                        colSpan={5}
-                        count={data.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        SelectProps={{
-                          inputProps: { 'aria-label': 'rows per page' },
-                          native: true,
-                        }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
-                        ActionsComponent={TablePaginationActions}
-                      />
-                    </TableRow>
-                  </TableFooter>
-                </Table>
-              </StyledTable>
+                    </TableFooter>
+                  </Table>
+                </StyledTable>
+              </>
             }
           </>
       }

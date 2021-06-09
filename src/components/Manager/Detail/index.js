@@ -162,7 +162,7 @@ function Detail(props) {
           value={numberFloor}
           onChange={(e) => handleValueFloor(e)}
         />
-        
+
         <StyledTextField
           InputLabelProps={{
             shrink: true,
@@ -185,15 +185,15 @@ function Detail(props) {
           </StyledError>
         )}
         {isAdd ?
-          <StyledButton variant="contained" color="primary" onClick={handleSave}>Save </StyledButton> :
-          <StyledButton variant="contained" color="primary" onClick={handleEdit}>Edit </StyledButton>
+          <StyledButton variant="contained" color="primary" onClick={() => { if (window.confirm('Are you sure you wish to save this item?')) handleSave() }}>Save </StyledButton> :
+          <StyledButton variant="contained" color="primary" onClick={() => { if (window.confirm('Are you sure you wish to edit this item?')) handleEdit() }}>Edit </StyledButton>
         }
 
       </StyledGroupTextField>
 
 
 
-    </div>
+    </div >
   )
 }
 

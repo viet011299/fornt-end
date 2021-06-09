@@ -149,8 +149,16 @@ function ModalRoom({ roomData, buildingData, fetchData }) {
         }
       )
       await fetchData()
+
       setIsLoading(false)
-      handleClose()
+      setData({
+        roomName: roomName,
+        roomInfo: roomInfo,
+        buildingId: building,
+        floor: floor,
+      })
+      
+      setOpen(false);
     } catch (error) {
       if (error.response) {
         // Request made and server responded

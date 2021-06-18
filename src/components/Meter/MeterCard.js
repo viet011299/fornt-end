@@ -91,7 +91,7 @@ function MeterCard({ room, meterData, index }) {
         </Typography>
 
             <Typography variant="h6">
-              Energy: {meterData.kWh} kWh
+            Total Energy: {meterData.kWh} kWh
         </Typography>
 
             <Typography variant="h6">
